@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter & Validator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #10b981;
+            --secondary: #059669;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        select, button {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        button.warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        button.warning:hover {
+            background-color: #d97706;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .output-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: #1e293b;
+            color: #f8fafc;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .json-key {
+            color: #60a5fa;
+        }
+
+        .json-string {
+            color: #34d399;
+        }
+
+        .json-number {
+            color: #fbbf24;
+        }
+
+        .json-boolean {
+            color: #c084fc;
+        }
+
+        .json-null {
+            color: #f87171;
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            color: var(--error);
+            font-weight: 500;
+        }
+
+        .success-message {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary);
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .view-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            background-color: var(--light);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tree-view {
+            padding-left: 20px;
+        }
+
+        .tree-node {
+            margin: 5px 0;
+        }
+
+        .tree-toggle {
+            cursor: pointer;
+            margin-right: 5px;
+            user-select: none;
+        }
+
+        .tree-children {
+            margin-left: 20px;
+            display: none;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .view-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON Formatter & Validator</h1>
+    <p class="subtitle">Format, validate, and analyze JSON data</p>
+    
+    <div class="container">
+        <div class="input-section">
+            <h2>Input JSON</h2>
+            <textarea id="jsonInput" placeholder="Paste your JSON here...">{
+  "name": "John Doe",
+  "age": 30,
+  "isEmployed": true,
+  "address": {
+    "street": "123 Main St",
+    "city": "Anytown",
+    "country": "USA"
+  },
+  "hobbies": ["reading", "gaming", "coding"],
+  "contact": {
+    "email": "john.doe@example.com",
+    "phone": "+1-555-0123"
+  }
+}</textarea>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="indentSize">Indentation:</label>
+                    <select id="indentSize">
+                        <option value="2">2 Spaces</option>
+                        <option value="4" selected>4 Spaces</option>
+                        <option value="8">8 Spaces</option>
+                        <option value="tab">Tabs</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="sortKeys">Sort Keys:</label>
+                    <select id="sortKeys">
+                        <option value="false">No Sorting</option>
+                        <option value="true">Alphabetical</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Actions:</label>
+                    <div class="button-group">
+                        <button id="formatBtn">
+                            <i class="fas fa-magic"></i> Format & Validate
+                        </button>
+                        <button id="minifyBtn" class="secondary">
+                            <i class="fas fa-compress"></i> Minify
+                        </button>
+                        <button id="clearBtn" class="secondary">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button id="sampleBtn" class="warning">
+                            <i class="fas fa-file-code"></i> Load Sample
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <h2>Formatted JSON</h2>
+            
+            <div class="view-options">
+                <div class="view-btn active" data-view="formatted">Formatted</div>
+                <div class="view-btn" data-view="tree">Tree View</div>
+                <div class="view-btn" data-view="minified">Minified</div>
+            </div>
+            
+            <div class="output-container" id="outputContainer">
+                <button id="copyBtn" class="copy-btn">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <div id="jsonOutput"></div>
+            </div>
+            
+            <div id="validationResult"></div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-file-code"></i>
+                    <span id="size">Size: 0 bytes</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span id="depth">Depth: 0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-key"></i>
+                    <span id="keys">Keys: 0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-list"></i>
+                    <span id="elements">Elements: 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>JSON Formatter & Validator &copy; 2023 | Parse, format, and validate JSON data</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const jsonInput = document.getElementById('jsonInput');
+            const indentSize = document.getElementById('indentSize');
+            const sortKeys = document.getElementById('sortKeys');
+            const formatBtn = document.getElementById('formatBtn');
+            const minifyBtn = document.getElementById('minifyBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const jsonOutput = document.getElementById('jsonOutput');
+            const outputContainer = document.getElementById('outputContainer');
+            const validationResult = document.getElementById('validationResult');
+            const viewButtons = document.querySelectorAll('.view-btn');
+            const sizeElement = document.getElementById('size');
+            const depthElement = document.getElementById('depth');
+            const keysElement = document.getElementById('keys');
+            const elementsElement = document.getElementById('elements');
+            
+            let currentJson = null;
+            let currentView = 'formatted';
+            
+            // Initial formatting
+            formatJson();
+            
+            // Event listeners
+            formatBtn.addEventListener('click', formatJson);
+            minifyBtn.addEventListener('click', minifyJson);
+            clearBtn.addEventListener('click', clearJson);
+            sampleBtn.addEventListener('click', loadSample);
+            copyBtn.addEventListener('click', copyToClipboard);
+            
+            // View option buttons
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentView = this.dataset.view;
+                    updateView();
+                });
+            });
+            
+            // Format and validate JSON
+            function formatJson() {
+                const input = jsonInput.value.trim();
+                
+                if (!input) {
+                    showError('Please enter some JSON data');
+                    return;
+                }
+                
+                try {
+                    // Parse JSON
+                    currentJson = JSON.parse(input);
+                    
+                    // Format with options
+                    const indent = indentSize.value === 'tab' ? '\t' : parseInt(indentSize.value);
+                    const formatted = JSON.stringify(currentJson, sortKeys.value === 'true' ? getSortedKeys() : null, indent);
+                    
+                    // Display formatted JSON with syntax highlighting
+                    displayFormattedJson(formatted);
+                    
+                    // Show success message
+                    showSuccess('JSON is valid and properly formatted');
+                    
+                    // Update statistics
+                    updateStats(currentJson);
+                    
+                } catch (error) {
+                    showError(`Invalid JSON: ${error.message}`);
+                    jsonOutput.textContent = input;
+                    jsonOutput.className = '';
+                    currentJson = null;
+                }
+            }
+            
+            // Minify JSON
+            function minifyJson() {
+                const input = jsonInput.value.trim();
+                
+                if (!input) {
+                    showError('Please enter some JSON data');
+                    return;
+                }
+                
+                try {
+                    // Parse and minify
+                    const parsed = JSON.parse(input);
+                    const minified = JSON.stringify(parsed);
+                    
+                    // Display minified JSON
+                    jsonOutput.textContent = minified;
+                    jsonOutput.className = '';
+                    
+                    // Show success message
+                    showSuccess('JSON minified successfully');
+                    
+                    // Update statistics
+                    updateStats(parsed);
+                    
+                } catch (error) {
+                    showError(`Invalid JSON: ${error.message}`);
+                }
+            }
+            
+            // Display formatted JSON with syntax highlighting
+            function displayFormattedJson(jsonString) {
+                // Simple syntax highlighting
+                let highlighted = jsonString
+                    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, function(match) {
+                        let cls = 'json-key';
+                        if (/:$/.test(match)) {
+                            return '<span class="' + cls + '">' + match + '</span>';
+                        } else {
+                            cls = 'json-string';
+                            return '<span class="' + cls + '">' + match + '</span>';
+                        }
+                    })
+                    .replace(/\b(true|false)\b/g, '<span class="json-boolean">$1</span>')
+                    .replace(/\b(null)\b/g, '<span class="json-null">$1</span>')
+                    .replace(/\b-?\d+(\.\d+)?([eE][+-]?\d+)?\b/g, '<span class="json-number">$&</span>');
+                
+                jsonOutput.innerHTML = highlighted;
+                jsonOutput.className = '';
+            }
+            
+            // Display tree view
+            function displayTreeView(obj) {
+                jsonOutput.innerHTML = '';
+                const treeContainer = document.createElement('div');
+                treeContainer.className = 'tree-view';
+                buildTree(treeContainer, obj, 'root');
+                jsonOutput.appendChild(treeContainer);
+            }
+            
+            // Build tree structure
+            function buildTree(container, obj, key, depth = 0) {
+                const node = document.createElement('div');
+                node.className = 'tree-node';
+                
+                if (typeof obj === 'object' && obj !== null) {
+                    const isArray = Array.isArray(obj);
+                    const toggle = document.createElement('span');
+                    toggle.className = 'tree-toggle';
+                    toggle.innerHTML = '▶';
+                    toggle.addEventListener('click', function() {
+                        const children = this.parentNode.querySelector('.tree-children');
+                        if (children.classList.contains('expanded')) {
+                            children.classList.remove('expanded');
+                            this.innerHTML = '▶';
+                        } else {
+                            children.classList.add('expanded');
+                            this.innerHTML = '▼';
+                        }
+                    });
+                    
+                    node.appendChild(toggle);
+                    
+                    const keySpan = document.createElement('span');
+                    keySpan.className = 'json-key';
+                    keySpan.textContent = key + ': ';
+                    node.appendChild(keySpan);
+                    
+                    const typeSpan = document.createElement('span');
+                    typeSpan.textContent = isArray ? `Array[${obj.length}]` : `Object{${Object.keys(obj).length}}`;
+                    node.appendChild(typeSpan);
+                    
+                    const children = document.createElement('div');
+                    children.className = 'tree-children';
+                    
+                    for (const k in obj) {
+                        if (obj.hasOwnProperty(k)) {
+                            buildTree(children, obj[k], k, depth + 1);
+                        }
+                    }
+                    
+                    node.appendChild(children);
+                } else {
+                    const keySpan = document.createElement('span');
+                    keySpan.className = 'json-key';
+                    keySpan.textContent = key + ': ';
+                    node.appendChild(keySpan);
+                    
+                    const valueSpan = document.createElement('span');
+                    let valueClass = 'json-string';
+                    
+                    if (typeof obj === 'number') valueClass = 'json-number';
+                    else if (typeof obj === 'boolean') valueClass = 'json-boolean';
+                    else if (obj === null) valueClass = 'json-null';
+                    
+                    valueSpan.className = valueClass;
+                    valueSpan.textContent = typeof obj === 'string' ? `"${obj}"` : obj;
+                    node.appendChild(valueSpan);
+                }
+                
+                container.appendChild(node);
+            }
+            
+            // Update view based on current selection
+            function updateView() {
+                if (!currentJson) return;
+                
+                if (currentView === 'formatted') {
+                    const indent = indentSize.value === 'tab' ? '\t' : parseInt(indentSize.value);
+                    const formatted = JSON.stringify(currentJson, sortKeys.value === 'true' ? getSortedKeys() : null, indent);
+                    displayFormattedJson(formatted);
+                } else if (currentView === 'tree') {
+                    displayTreeView(currentJson);
+                } else if (currentView === 'minified') {
+                    jsonOutput.textContent = JSON.stringify(currentJson);
+                    jsonOutput.className = '';
+                }
+            }
+            
+            // Get sorted keys for JSON stringify
+            function getSortedKeys() {
+                return function(key, value) {
+                    if (value && typeof value === 'object' && !Array.isArray(value)) {
+                        return Object.keys(value).sort().reduce((sorted, key) => {
+                            sorted[key] = value[key];
+                            return sorted;
+                        }, {});
+                    }
+                    return value;
+                };
+            }
+            
+            // Update statistics
+            function updateStats(obj) {
+                const jsonString = JSON.stringify(obj);
+                sizeElement.textContent = `Size: ${new Blob([jsonString]).size} bytes`;
+                
+                const depth = calculateDepth(obj);
+                depthElement.textContent = `Depth: ${depth}`;
+                
+                const keyCount = countKeys(obj);
+                keysElement.textContent = `Keys: ${keyCount}`;
+                
+                const elementCount = countElements(obj);
+                elementsElement.textContent = `Elements: ${elementCount}`;
+            }
+            
+            // Calculate depth of JSON object
+            function calculateDepth(obj) {
+                if (typeof obj !== 'object' || obj === null) return 0;
+                
+                let depth = 0;
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        depth = Math.max(depth, calculateDepth(obj[key]));
+                    }
+                }
+                return depth + 1;
+            }
+            
+            // Count all keys in JSON object
+            function countKeys(obj) {
+                if (typeof obj !== 'object' || obj === null) return 0;
+                
+                let count = Object.keys(obj).length;
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        count += countKeys(obj[key]);
+                    }
+                }
+                return count;
+            }
+            
+            // Count all elements (including array items)
+            function countElements(obj) {
+                if (typeof obj !== 'object' || obj === null) return 1;
+                
+                if (Array.isArray(obj)) {
+                    let count = obj.length;
+                    for (const item of obj) {
+                        count += countElements(item);
+                    }
+                    return count;
+                } else {
+                    let count = 0;
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            count += 1 + countElements(obj[key]);
+                        }
+                    }
+                    return count;
+                }
+            }
+            
+            // Show error message
+            function showError(message) {
+                validationResult.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${message}</div>`;
+            }
+            
+            // Show success message
+            function showSuccess(message) {
+                validationResult.innerHTML = `<div class="success-message"><i class="fas fa-check-circle"></i> ${message}</div>`;
+            }
+            
+            // Clear JSON
+            function clearJson() {
+                jsonInput.value = '';
+                jsonOutput.textContent = '';
+                validationResult.innerHTML = '';
+                currentJson = null;
+                
+                // Reset stats
+                sizeElement.textContent = 'Size: 0 bytes';
+                depthElement.textContent = 'Depth: 0';
+                keysElement.textContent = 'Keys: 0';
+                elementsElement.textContent = 'Elements: 0';
+            }
+            
+            // Load sample JSON
+            function loadSample() {
+                const sampleJson = {
+                    "apiResponse": {
+                        "status": "success",
+                        "code": 200,
+                        "message": "Data retrieved successfully",
+                        "data": {
+                            "users": [
+                                {
+                                    "id": 1,
+                                    "name": "Alice Johnson",
+                                    "email": "alice@example.com",
+                                    "active": true,
+                                    "preferences": {
+                                        "theme": "dark",
+                                        "notifications": true,
+                                        "language": "en"
+                                    }
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Bob Smith",
+                                    "email": "bob@example.com",
+                                    "active": false,
+                                    "preferences": {
+                                        "theme": "light",
+                                        "notifications": false,
+                                        "language": "fr"
+                                    }
+                                }
+                            ],
+                            "pagination": {
+                                "page": 1,
+                                "perPage": 10,
+                                "totalPages": 5,
+                                "totalItems": 50
+                            }
+                        },
+                        "timestamp": "2023-06-15T10:30:00Z"
+                    }
+                };
+                
+                jsonInput.value = JSON.stringify(sampleJson, null, 2);
+                formatJson();
+            }
+            
+            // Copy to clipboard
+            function copyToClipboard() {
+                const text = jsonOutput.textContent;
+                
+                if (!text) {
+                    showError('No content to copy');
+                    return;
+                }
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    }, 2000);
+                }).catch(err => {
+                    showError('Failed to copy text: ' + err);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
