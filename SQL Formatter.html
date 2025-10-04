@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Formatter & Beautifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/sql.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #0369a1;
+            --accent: #38bdf8;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --sidebar: #0f172a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            width: 100%;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--sidebar);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: calc(100vh - 180px);
+            min-height: 600px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        .editor-panel, .preview-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            background-color: var(--light);
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+            background-color: #f8fafc;
+        }
+
+        textarea:focus {
+            outline: none;
+            background-color: white;
+        }
+
+        .preview-content {
+            padding: 20px;
+            height: 100%;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+            color: #f8fafc;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
+        .preview-content pre {
+            margin: 0;
+            background: none;
+            padding: 0;
+        }
+
+        .preview-content code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background-color: var(--light);
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        select {
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .checkbox-group input {
+            width: 16px;
+            height: 16px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--light);
+            border-top: 1px solid #e2e8f0;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .sidebar {
+            background-color: var(--sidebar);
+            color: white;
+            padding: 20px;
+            width: 300px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .example-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #e2e8f0;
+        }
+
+        .example-sql {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .validation-result {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .validation-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .validation-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border-left: 4px solid var(--error);
+        }
+
+        .keyword {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .function {
+            color: #74c0fc;
+        }
+
+        .string {
+            color: #51cf66;
+        }
+
+        .number {
+            color: #f59e0b;
+        }
+
+        .comment {
+            color: #868e96;
+            font-style: italic;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <i class="fas fa-database"></i>
+                SQL Formatter & Beautifier
+            </h1>
+            <div class="header-actions">
+                <button class="btn-secondary" id="validateBtn">
+                    <i class="fas fa-check-circle"></i> Validate SQL
+                </button>
+                <button class="btn-primary" id="formatBtn">
+                    <i class="fas fa-magic"></i> Format SQL
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-edit"></i>
+                        SQL Editor
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn-small btn-secondary" id="clearBtn">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="btn-small btn-secondary" id="sampleBtn">
+                            <i class="fas fa-file-code"></i> Load Sample
+                        </button>
+                    </div>
+                </div>
+                <textarea id="sqlInput" placeholder="Enter your SQL query here...">SELECT customers.customer_id, customers.first_name, customers.last_name, orders.order_date, products.product_name, order_items.quantity, (order_items.quantity * products.price) as total_amount FROM customers INNER JOIN orders ON customers.customer_id = orders.customer_id INNER JOIN order_items ON orders.order_id = order_items.order_id INNER JOIN products ON order_items.product_id = products.product_id WHERE orders.order_date >= '2023-01-01' AND customers.country = 'USA' ORDER BY customers.last_name, customers.first_name, orders.order_date DESC;</textarea>
+            </div>
+
+            <div class="preview-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-eye"></i>
+                        Formatted SQL
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn-small btn-secondary" id="copySqlBtn">
+                            <i class="fas fa-copy"></i> Copy SQL
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-content" id="sqlPreview">
+                    <pre><code class="sql" id="formattedSql"></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="indentSize">Indentation:</label>
+                <select id="indentSize">
+                    <option value="2">2 Spaces</option>
+                    <option value="4" selected>4 Spaces</option>
+                    <option value="8">8 Spaces</option>
+                    <option value="tab">Tabs</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="keywordCase">Keyword Case:</label>
+                <select id="keywordCase">
+                    <option value="upper" selected>UPPERCASE</option>
+                    <option value="lower">lowercase</option>
+                    <option value="capitalize">Capitalize</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Options:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="alignColumns" checked>
+                    <label for="alignColumns">Align columns</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newlineBeforeClause" checked>
+                    <label for="newlineBeforeClause">Newline before clauses</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="stripComments">
+                    <label for="stripComments">Strip comments</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label for="dialect">SQL Dialect:</label>
+                <select id="dialect">
+                    <option value="standard" selected>Standard SQL</option>
+                    <option value="mysql">MySQL</option>
+                    <option value="postgresql">PostgreSQL</option>
+                    <option value="sqlserver">SQL Server</option>
+                    <option value="oracle">Oracle</option>
+                    <option value="sqlite">SQLite</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <i class="fas fa-file-alt"></i>
+                <span id="charCount">Characters: 0</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-code"></i>
+                <span id="lineCount">Lines: 0</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <span id="updateTime">Last update: Just now</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-database"></i>
+                <span id="queryType">Query type: Unknown</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Modal -->
+    <div class="modal" id="validationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">SQL Validation</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div id="validationResult">
+                <!-- Validation results will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sqlInput = document.getElementById('sqlInput');
+            const formattedSql = document.getElementById('formattedSql');
+            const charCount = document.getElementById('charCount');
+            const lineCount = document.getElementById('lineCount');
+            const updateTime = document.getElementById('updateTime');
+            const queryType = document.getElementById('queryType');
+            const clearBtn = document.getElementById('clearBtn');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const formatBtn = document.getElementById('formatBtn');
+            const validateBtn = document.getElementById('validateBtn');
+            const copySqlBtn = document.getElementById('copySqlBtn');
+            const validationModal = document.getElementById('validationModal');
+            const closeModal = document.querySelector('.close-modal');
+            
+            // SQL keywords for different dialects
+            const sqlKeywords = {
+                standard: ['SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'ALTER', 'DROP', 'TABLE', 'VIEW', 'INDEX', 'JOIN', 'INNER', 'LEFT', 'RIGHT', 'OUTER', 'ON', 'AND', 'OR', 'NOT', 'IN', 'BETWEEN', 'LIKE', 'IS', 'NULL', 'ORDER', 'BY', 'GROUP', 'HAVING', 'DISTINCT', 'AS', 'SET', 'VALUES', 'INTO'],
+                mysql: ['AUTO_INCREMENT', 'ENGINE', 'CHARSET', 'COLLATE', 'LIMIT', 'OFFSET'],
+                postgresql: ['SERIAL', 'BIGSERIAL', 'RETURNING', 'ILIKE', 'SIMILAR TO'],
+                sqlserver: ['TOP', 'IDENTITY', 'WITH', 'NOCOUNT'],
+                oracle: ['ROWNUM', 'DUAL', 'SEQUENCE', 'CONNECT BY'],
+                sqlite: ['AUTOINCREMENT', 'WITHOUT ROWID']
+            };
+            
+            // Initial formatting
+            formatSQL();
+            
+            // Event listeners
+            sqlInput.addEventListener('input', updateStats);
+            clearBtn.addEventListener('click', clearEditor);
+            sampleBtn.addEventListener('click', loadSample);
+            formatBtn.addEventListener('click', formatSQL);
+            validateBtn.addEventListener('click', validateSQL);
+            copySqlBtn.addEventListener('click', copySQL);
+            closeModal.addEventListener('click', () => validationModal.style.display = 'none');
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === validationModal) {
+                    validationModal.style.display = 'none';
+                }
+            });
+            
+            // Format SQL
+            function formatSQL() {
+                const sql = sqlInput.value;
+                const indentSize = document.getElementById('indentSize').value;
+                const keywordCase = document.getElementById('keywordCase').value;
+                const alignColumns = document.getElementById('alignColumns').checked;
+                const newlineBeforeClause = document.getElementById('newlineBeforeClause').checked;
+                const stripComments = document.getElementById('stripComments').checked;
+                const dialect = document.getElementById('dialect').value;
+                
+                let formatted = sql;
+                
+                // Basic cleaning
+                formatted = formatted.trim();
+                
+                // Remove excessive whitespace
+                formatted = formatted.replace(/\s+/g, ' ');
+                
+                // Handle comments if strip is enabled
+                if (stripComments) {
+                    formatted = formatted.replace(/--.*$/gm, '');
+                    formatted = formatted.replace(/\/\*[\s\S]*?\*\//g, '');
+                }
+                
+                // Apply keyword case
+                const allKeywords = [...sqlKeywords.standard, ...(sqlKeywords[dialect] || [])];
+                allKeywords.forEach(keyword => {
+                    const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+                    formatted = formatted.replace(regex, applyCase(keyword, keywordCase));
+                });
+                
+                // Basic formatting rules
+                formatted = formatted.replace(/,/g, ',\n' + getIndent(1, indentSize));
+                formatted = formatted.replace(/(SELECT|FROM|WHERE|JOIN|INNER JOIN|LEFT JOIN|RIGHT JOIN|OUTER JOIN|ON|AND|OR|ORDER BY|GROUP BY|HAVING)/gi, '\n$1');
+                
+                // Apply indentation
+                formatted = applyIndentation(formatted, indentSize);
+                
+                // Update preview
+                formattedSql.textContent = formatted;
+                hljs.highlightElement(formattedSql);
+                
+                updateStats();
+                detectQueryType(sql);
+            }
+            
+            // Apply case transformation to keywords
+            function applyCase(keyword, caseType) {
+                switch(caseType) {
+                    case 'upper': return keyword.toUpperCase();
+                    case 'lower': return keyword.toLowerCase();
+                    case 'capitalize': return keyword.charAt(0).toUpperCase() + keyword.slice(1).toLowerCase();
+                    default: return keyword;
+                }
+            }
+            
+            // Get indentation string
+            function getIndent(level, indentSize) {
+                if (indentSize === 'tab') {
+                    return '\t'.repeat(level);
+                }
+                return ' '.repeat(level * parseInt(indentSize));
+            }
+            
+            // Apply indentation to SQL
+            function applyIndentation(sql, indentSize) {
+                const lines = sql.split('\n');
+                let indentLevel = 0;
+                const result = [];
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+                    
+                    // Decrease indent for certain clauses
+                    if (line.match(/^(FROM|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT)/i)) {
+                        indentLevel = Math.max(0, indentLevel - 1);
+                    }
+                    
+                    result.push(getIndent(indentLevel, indentSize) + line);
+                    
+                    // Increase indent after certain clauses
+                    if (line.match(/^(SELECT|FROM|WHERE|JOIN|ON|AND|OR|ORDER BY|GROUP BY|HAVING|VALUES|SET)/i)) {
+                        indentLevel++;
+                    }
+                }
+                
+                return result.join('\n');
+            }
+            
+            // Update statistics
+            function updateStats() {
+                const text = sqlInput.value;
+                const chars = text.length;
+                const lines = text.split('\n').length;
+                
+                charCount.textContent = `Characters: ${chars.toLocaleString()}`;
+                lineCount.textContent = `Lines: ${lines}`;
+                updateTime.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+            }
+            
+            // Detect query type
+            function detectQueryType(sql) {
+                const trimmed = sql.trim().toUpperCase();
+                
+                if (trimmed.startsWith('SELECT')) {
+                    queryType.textContent = 'Query type: SELECT';
+                } else if (trimmed.startsWith('INSERT')) {
+                    queryType.textContent = 'Query type: INSERT';
+                } else if (trimmed.startsWith('UPDATE')) {
+                    queryType.textContent = 'Query type: UPDATE';
+                } else if (trimmed.startsWith('DELETE')) {
+                    queryType.textContent = 'Query type: DELETE';
+                } else if (trimmed.startsWith('CREATE')) {
+                    queryType.textContent = 'Query type: CREATE';
+                } else if (trimmed.startsWith('ALTER')) {
+                    queryType.textContent = 'Query type: ALTER';
+                } else if (trimmed.startsWith('DROP')) {
+                    queryType.textContent = 'Query type: DROP';
+                } else {
+                    queryType.textContent = 'Query type: Unknown';
+                }
+            }
+            
+            // Clear editor
+            function clearEditor() {
+                if (confirm('Are you sure you want to clear the editor?')) {
+                    sqlInput.value = '';
+                    formattedSql.textContent = '';
+                    updateStats();
+                    queryType.textContent = 'Query type: Unknown';
+                }
+            }
+            
+            // Load sample SQL
+            function loadSample() {
+                sqlInput.value = `-- Complex SQL query with multiple joins and conditions
+SELECT 
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    o.order_id,
+    o.order_date,
+    p.product_name,
+    p.category,
+    oi.quantity,
+    oi.unit_price,
+    (oi.quantity * oi.unit_price) as line_total,
+    a.street,
+    a.city,
+    a.state,
+    a.zip_code
+FROM customers c
+    INNER JOIN orders o ON c.customer_id = o.customer_id
+    INNER JOIN order_items oi ON o.order_id = oi.order_id
+    INNER JOIN products p ON oi.product_id = p.product_id
+    LEFT JOIN addresses a ON c.customer_id = a.customer_id AND a.is_primary = TRUE
+WHERE 
+    o.order_date BETWEEN '2023-01-01' AND '2023-12-31'
+    AND c.status = 'active'
+    AND p.category IN ('Electronics', 'Books', 'Home')
+    AND (oi.quantity * oi.unit_price) > 50
+ORDER BY 
+    c.last_name ASC,
+    c.first_name ASC,
+    o.order_date DESC,
+    p.product_name ASC;`;
+                formatSQL();
+            }
+            
+            // Validate SQL
+            function validateSQL() {
+                const sql = sqlInput.value.trim();
+                const validationResult = document.getElementById('validationResult');
+                let isValid = true;
+                let issues = [];
+                
+                // Basic validation checks
+                if (!sql) {
+                    issues.push('SQL query is empty');
+                    isValid = false;
+                }
+                
+                // Check for common syntax issues
+                if (sql.includes('SELECT') && !sql.includes('FROM')) {
+                    issues.push('SELECT statement missing FROM clause');
+                    isValid = false;
+                }
+                
+                // Check for unbalanced parentheses
+                const openParens = (sql.match(/\(/g) || []).length;
+                const closeParens = (sql.match(/\)/g) || []).length;
+                if (openParens !== closeParens) {
+                    issues.push('Unbalanced parentheses detected');
+                    isValid = false;
+                }
+                
+                // Check for common typos
+                const commonTypos = {
+                    'SELCT': 'SELECT',
+                    'FORM': 'FROM',
+                    'WHER': 'WHERE',
+                    'JOIN': 'JOIN',
+                    'INNERJOIN': 'INNER JOIN',
+                    'LEFTJOIN': 'LEFT JOIN'
+                };
+                
+                Object.keys(commonTypos).forEach(typo => {
+                    if (sql.toUpperCase().includes(typo)) {
+                        issues.push(`Possible typo: "${typo}" should be "${commonTypos[typo]}"`);
+                        isValid = false;
+                    }
+                });
+                
+                // Update validation result
+                if (isValid && sql) {
+                    validationResult.innerHTML = `
+                        <div class="validation-success">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>SQL appears to be valid!</strong>
+                            <p>No obvious syntax errors detected.</p>
+                            <p><small>Note: This is a basic validation. Always test your queries in your database environment.</small></p>
+                        </div>
+                    `;
+                } else if (sql) {
+                    validationResult.innerHTML = `
+                        <div class="validation-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Potential issues found:</strong>
+                            <ul>
+                                ${issues.map(issue => `<li>${issue}</li>`).join('')}
+                            </ul>
+                            <p><small>Please review your SQL query carefully.</small></p>
+                        </div>
+                    `;
+                } else {
+                    validationResult.innerHTML = `
+                        <div class="validation-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>No SQL to validate</strong>
+                            <p>Please enter a SQL query in the editor.</p>
+                        </div>
+                    `;
+                }
+                
+                validationModal.style.display = 'flex';
+            }
+            
+            // Copy SQL to clipboard
+            function copySQL() {
+                const sql = formattedSql.textContent;
+                navigator.clipboard.writeText(sql).then(() => {
+                    copySqlBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copySqlBtn.innerHTML = '<i class="fas fa-copy"></i> Copy SQL';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy SQL to clipboard');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
