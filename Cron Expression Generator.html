@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cron Expression Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .output-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4facfe;
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        .input-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .time-unit {
+            margin-bottom: 1.5rem;
+        }
+        
+        .time-unit:last-child {
+            margin-bottom: 0;
+        }
+        
+        .unit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .unit-name {
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .preset-btn {
+            padding: 4px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .preset-btn.active {
+            background: #4facfe;
+            border-color: #4facfe;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .radio-option input {
+            margin: 0;
+        }
+        
+        .values-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .value-option {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .value-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .value-option.selected {
+            background: #4facfe;
+            border-color: #4facfe;
+        }
+        
+        .range-inputs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .range-inputs input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .step-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .step-input input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .output-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cron-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #4facfe;
+            border: 2px solid rgba(79, 172, 254, 0.3);
+        }
+        
+        .cron-breakdown {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .cron-part {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .part-label {
+            font-size: 0.8rem;
+            color: #b0b0b0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .part-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4facfe;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .human-readable {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .next-runs {
+            margin-top: 1rem;
+        }
+        
+        .runs-list {
+            margin-top: 0.75rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .run-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .run-item:last-child {
+            border-bottom: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .preset-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+        
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .preset-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .preset-card:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .preset-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4facfe;
+        }
+        
+        .preset-cron {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #b0b0b0;
+        }
+        
+        .preset-desc {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            color: #e0e0e0;
+        }
+        
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .cron-breakdown {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .cron-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .preset-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cron Expression Generator</h1>
+            <p class="description">Create cron expressions visually with this intuitive generator. Perfect for scheduling tasks in Unix/Linux systems.</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="input-section">
+                <div class="input-group">
+                    <h2 class="section-title"><i class="fas fa-sliders-h"></i> Schedule Configuration</h2>
+                    
+                    <!-- Minutes -->
+                    <div class="time-unit">
+                        <div class="unit-header">
+                            <div class="unit-name">Minutes</div>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-unit="minute" data-value="*">Every</button>
+                                <button class="preset-btn" data-unit="minute" data-value="0">On 0</button>
+                                <button class="preset-btn" data-unit="minute" data-value="0,30">0,30</button>
+                            </div>
+                        </div>
+                        <div class="control-group" id="minute-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="minute-every" name="minute" value="every" checked>
+                                    <label for="minute-every">Every minute</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="minute-custom" name="minute" value="custom">
+                                    <label for="minute-custom">Specific minutes</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="minute-range" name="minute" value="range">
+                                    <label for="minute-range">Range</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="minute-step" name="minute" value="step">
+                                    <label for="minute-step">Step values</label>
+                                </div>
+                            </div>
+                            
+                            <div class="values-container" id="minute-values">
+                                <!-- Minute values will be populated by JavaScript -->
+                            </div>
+                            
+                            <div class="range-inputs" id="minute-range-inputs" style="display: none;">
+                                <input type="number" id="minute-range-start" min="0" max="59" value="0">
+                                <span>to</span>
+                                <input type="number" id="minute-range-end" min="0" max="59" value="59">
+                            </div>
+                            
+                            <div class="step-input" id="minute-step-input" style="display: none;">
+                                <span>Every</span>
+                                <input type="number" id="minute-step-value" min="1" max="59" value="5">
+                                <span>minute(s)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hours -->
+                    <div class="time-unit">
+                        <div class="unit-header">
+                            <div class="unit-name">Hours</div>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-unit="hour" data-value="*">Every</button>
+                                <button class="preset-btn" data-unit="hour" data-value="0">Midnight</button>
+                                <button class="preset-btn" data-unit="hour" data-value="9-17">9AM-5PM</button>
+                            </div>
+                        </div>
+                        <div class="control-group" id="hour-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="hour-every" name="hour" value="every" checked>
+                                    <label for="hour-every">Every hour</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="hour-custom" name="hour" value="custom">
+                                    <label for="hour-custom">Specific hours</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="hour-range" name="hour" value="range">
+                                    <label for="hour-range">Range</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="hour-step" name="hour" value="step">
+                                    <label for="hour-step">Step values</label>
+                                </div>
+                            </div>
+                            
+                            <div class="values-container" id="hour-values">
+                                <!-- Hour values will be populated by JavaScript -->
+                            </div>
+                            
+                            <div class="range-inputs" id="hour-range-inputs" style="display: none;">
+                                <input type="number" id="hour-range-start" min="0" max="23" value="0">
+                                <span>to</span>
+                                <input type="number" id="hour-range-end" min="0" max="23" value="23">
+                            </div>
+                            
+                            <div class="step-input" id="hour-step-input" style="display: none;">
+                                <span>Every</span>
+                                <input type="number" id="hour-step-value" min="1" max="23" value="2">
+                                <span>hour(s)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Day of Month -->
+                    <div class="time-unit">
+                        <div class="unit-header">
+                            <div class="unit-name">Day of Month</div>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-unit="dayOfMonth" data-value="*">Every</button>
+                                <button class="preset-btn" data-unit="dayOfMonth" data-value="1">1st</button>
+                                <button class="preset-btn" data-unit="dayOfMonth" data-value="15">15th</button>
+                            </div>
+                        </div>
+                        <div class="control-group" id="dayOfMonth-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="dayOfMonth-every" name="dayOfMonth" value="every" checked>
+                                    <label for="dayOfMonth-every">Every day</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="dayOfMonth-custom" name="dayOfMonth" value="custom">
+                                    <label for="dayOfMonth-custom">Specific days</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="dayOfMonth-range" name="dayOfMonth" value="range">
+                                    <label for="dayOfMonth-range">Range</label>
+                                </div>
+                            </div>
+                            
+                            <div class="values-container" id="dayOfMonth-values">
+                                <!-- Day of month values will be populated by JavaScript -->
+                            </div>
+                            
+                            <div class="range-inputs" id="dayOfMonth-range-inputs" style="display: none;">
+                                <input type="number" id="dayOfMonth-range-start" min="1" max="31" value="1">
+                                <span>to</span>
+                                <input type="number" id="dayOfMonth-range-end" min="1" max="31" value="31">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Month -->
+                    <div class="time-unit">
+                        <div class="unit-header">
+                            <div class="unit-name">Month</div>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-unit="month" data-value="*">Every</button>
+                                <button class="preset-btn" data-unit="month" data-value="1">Jan</button>
+                                <button class="preset-btn" data-unit="month" data-value="12">Dec</button>
+                            </div>
+                        </div>
+                        <div class="control-group" id="month-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="month-every" name="month" value="every" checked>
+                                    <label for="month-every">Every month</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="month-custom" name="month" value="custom">
+                                    <label for="month-custom">Specific months</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="month-range" name="month" value="range">
+                                    <label for="month-range">Range</label>
+                                </div>
+                            </div>
+                            
+                            <div class="values-container" id="month-values">
+                                <!-- Month values will be populated by JavaScript -->
+                            </div>
+                            
+                            <div class="range-inputs" id="month-range-inputs" style="display: none;">
+                                <input type="number" id="month-range-start" min="1" max="12" value="1">
+                                <span>to</span>
+                                <input type="number" id="month-range-end" min="1" max="12" value="12">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Day of Week -->
+                    <div class="time-unit">
+                        <div class="unit-header">
+                            <div class="unit-name">Day of Week</div>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-unit="dayOfWeek" data-value="*">Every</button>
+                                <button class="preset-btn" data-unit="dayOfWeek" data-value="1-5">Weekdays</button>
+                                <button class="preset-btn" data-unit="dayOfWeek" data-value="0,6">Weekend</button>
+                            </div>
+                        </div>
+                        <div class="control-group" id="dayOfWeek-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="dayOfWeek-every" name="dayOfWeek" value="every" checked>
+                                    <label for="dayOfWeek-every">Every day</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="dayOfWeek-custom" name="dayOfWeek" value="custom">
+                                    <label for="dayOfWeek-custom">Specific days</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="dayOfWeek-range" name="dayOfWeek" value="range">
+                                    <label for="dayOfWeek-range">Range</label>
+                                </div>
+                            </div>
+                            
+                            <div class="values-container" id="dayOfWeek-values">
+                                <!-- Day of week values will be populated by JavaScript -->
+                            </div>
+                            
+                            <div class="range-inputs" id="dayOfWeek-range-inputs" style="display: none;">
+                                <input type="number" id="dayOfWeek-range-start" min="0" max="6" value="0">
+                                <span>to</span>
+                                <input type="number" id="dayOfWeek-range-end" min="0" max="6" value="6">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <div class="output-group">
+                    <h2 class="section-title"><i class="fas fa-code"></i> Cron Expression</h2>
+                    
+                    <div class="cron-display" id="cron-expression">
+                        * * * * *
+                    </div>
+                    
+                    <div class="cron-breakdown">
+                        <div class="cron-part">
+                            <div class="part-label">Minute</div>
+                            <div class="part-value" id="part-minute">*</div>
+                        </div>
+                        <div class="cron-part">
+                            <div class="part-label">Hour</div>
+                            <div class="part-value" id="part-hour">*</div>
+                        </div>
+                        <div class="cron-part">
+                            <div class="part-label">Day of Month</div>
+                            <div class="part-value" id="part-dayOfMonth">*</div>
+                        </div>
+                        <div class="cron-part">
+                            <div class="part-label">Month</div>
+                            <div class="part-value" id="part-month">*</div>
+                        </div>
+                        <div class="cron-part">
+                            <div class="part-label">Day of Week</div>
+                            <div class="part-value" id="part-dayOfWeek">*</div>
+                        </div>
+                    </div>
+                    
+                    <div class="human-readable" id="human-readable">
+                        Every minute, every hour, every day
+                    </div>
+                    
+                    <div class="next-runs">
+                        <h3 class="section-title"><i class="fas fa-clock"></i> Next 5 Runs</h3>
+                        <div class="runs-list" id="next-runs">
+                            <!-- Next runs will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn primary" id="copy-btn">
+                            <i class="fas fa-copy"></i> Copy Expression
+                        </button>
+                        <button class="action-btn" id="reset-btn">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preset-group">
+                <h2 class="section-title"><i class="fas fa-bolt"></i> Common Presets</h2>
+                
+                <div class="preset-grid" id="preset-grid">
+                    <!-- Presets will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Cron Expression Generator &copy; 2023 | Create cron expressions for scheduling tasks in Unix/Linux systems</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const cronExpression = document.getElementById('cron-expression');
+        const partMinute = document.getElementById('part-minute');
+        const partHour = document.getElementById('part-hour');
+        const partDayOfMonth = document.getElementById('part-dayOfMonth');
+        const partMonth = document.getElementById('part-month');
+        const partDayOfWeek = document.getElementById('part-dayOfWeek');
+        const humanReadable = document.getElementById('human-readable');
+        const nextRuns = document.getElementById('next-runs');
+        const copyBtn = document.getElementById('copy-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const presetGrid = document.getElementById('preset-grid');
+        
+        // Time unit configuration
+        const timeUnits = {
+            minute: {
+                min: 0,
+                max: 59,
+                valuesContainer: document.getElementById('minute-values'),
+                rangeInputs: document.getElementById('minute-range-inputs'),
+                stepInput: document.getElementById('minute-step-input')
+            },
+            hour: {
+                min: 0,
+                max: 23,
+                valuesContainer: document.getElementById('hour-values'),
+                rangeInputs: document.getElementById('hour-range-inputs'),
+                stepInput: document.getElementById('hour-step-input')
+            },
+            dayOfMonth: {
+                min: 1,
+                max: 31,
+                valuesContainer: document.getElementById('dayOfMonth-values'),
+                rangeInputs: document.getElementById('dayOfMonth-range-inputs')
+            },
+            month: {
+                min: 1,
+                max: 12,
+                valuesContainer: document.getElementById('month-values'),
+                rangeInputs: document.getElementById('month-range-inputs')
+            },
+            dayOfWeek: {
+                min: 0,
+                max: 6,
+                valuesContainer: document.getElementById('dayOfWeek-values'),
+                rangeInputs: document.getElementById('dayOfWeek-range-inputs')
+            }
+        };
+        
+        // Current configuration state
+        const config = {
+            minute: { type: 'every', values: [] },
+            hour: { type: 'every', values: [] },
+            dayOfMonth: { type: 'every', values: [] },
+            month: { type: 'every', values: [] },
+            dayOfWeek: { type: 'every', values: [] }
+        };
+        
+        // Common presets
+        const presets = [
+            {
+                name: "Every Minute",
+                expression: "* * * * *",
+                description: "Runs every minute"
+            },
+            {
+                name: "Every Hour",
+                expression: "0 * * * *",
+                description: "Runs at the beginning of every hour"
+            },
+            {
+                name: "Daily",
+                expression: "0 0 * * *",
+                description: "Runs once a day at midnight"
+            },
+            {
+                name: "Weekly",
+                expression: "0 0 * * 0",
+                description: "Runs once a week on Sunday at midnight"
+            },
+            {
+                name: "Monthly",
+                expression: "0 0 1 * *",
+                description: "Runs on the first day of every month at midnight"
+            },
+            {
+                name: "Weekdays",
+                expression: "0 9 * * 1-5",
+                description: "Runs at 9 AM on weekdays"
+            },
+            {
+                name: "Every 5 Minutes",
+                expression: "*/5 * * * *",
+                description: "Runs every 5 minutes"
+            },
+            {
+                name: "Every 2 Hours",
+                expression: "0 */2 * * *",
+                description: "Runs every 2 hours"
+            },
+            {
+                name: "Business Hours",
+                expression: "0 9-17 * * 1-5",
+                description: "Runs every hour from 9 AM to 5 PM on weekdays"
+            },
+            {
+                name: "Weekend Mornings",
+                expression: "0 9 * * 0,6",
+                description: "Runs at 9 AM on weekends"
+            }
+        ];
+        
+        // Initialize the app
+        function init() {
+            populateValueOptions();
+            setupEventListeners();
+            populatePresets();
+            updateCronExpression();
+        }
+        
+        // Populate value options for each time unit
+        function populateValueOptions() {
+            for (const [unit, config] of Object.entries(timeUnits)) {
+                const container = config.valuesContainer;
+                container.innerHTML = '';
+                
+                for (let i = config.min; i <= config.max; i++) {
+                    const valueOption = document.createElement('div');
+                    valueOption.className = 'value-option';
+                    valueOption.textContent = unit === 'month' ? getMonthName(i) : 
+                                            unit === 'dayOfWeek' ? getDayName(i) : i;
+                    valueOption.dataset.value = i;
+                    valueOption.addEventListener('click', () => toggleValue(unit, i));
+                    container.appendChild(valueOption);
+                }
+            }
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Radio button changes
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const unit = this.name;
+                    const type = this.value;
+                    
+                    config[unit].type = type;
+                    updateControlVisibility(unit, type);
+                    updateCronExpression();
+                });
+            });
+            
+            // Range inputs
+            document.querySelectorAll('.range-inputs input').forEach(input => {
+                input.addEventListener('input', updateCronExpression);
+            });
+            
+            // Step inputs
+            document.querySelectorAll('.step-input input').forEach(input => {
+                input.addEventListener('input', updateCronExpression);
+            });
+            
+            // Preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const unit = this.dataset.unit;
+                    const value = this.dataset.value;
+                    
+                    // Set the radio button
+                    const radio = document.querySelector(`input[name="${unit}"][value="${value === '*' ? 'every' : 'custom'}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        config[unit].type = radio.value;
+                        updateControlVisibility(unit, radio.value);
+                    }
+                    
+                    // Set values if needed
+                    if (value !== '*') {
+                        config[unit].values = value.split(',').map(v => parseInt(v));
+                        updateValueSelection(unit);
+                    }
+                    
+                    updateCronExpression();
+                });
+            });
+            
+            // Action buttons
+            copyBtn.addEventListener('click', copyExpression);
+            resetBtn.addEventListener('click', resetForm);
+        }
+        
+        // Populate preset grid
+        function populatePresets() {
+            presetGrid.innerHTML = '';
+            
+            presets.forEach(preset => {
+                const presetCard = document.createElement('div');
+                presetCard.className = 'preset-card';
+                presetCard.innerHTML = `
+                    <div class="preset-name">${preset.name}</div>
+                    <div class="preset-cron">${preset.expression}</div>
+                    <div class="preset-desc">${preset.description}</div>
+                `;
+                
+                presetCard.addEventListener('click', () => applyPreset(preset.expression));
+                presetGrid.appendChild(presetCard);
+            });
+        }
+        
+        // Apply a preset expression
+        function applyPreset(expression) {
+            const parts = expression.split(' ');
+            
+            // Update each time unit
+            const units = ['minute', 'hour', 'dayOfMonth', 'month', 'dayOfWeek'];
+            units.forEach((unit, index) => {
+                const value = parts[index];
+                
+                if (value === '*') {
+                    // Every
+                    const radio = document.querySelector(`input[name="${unit}"][value="every"]`);
+                    radio.checked = true;
+                    config[unit].type = 'every';
+                    config[unit].values = [];
+                } else if (value.includes('/')) {
+                    // Step values
+                    const radio = document.querySelector(`input[name="${unit}"][value="step"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        config[unit].type = 'step';
+                        const stepValue = parseInt(value.split('/')[1]);
+                        document.getElementById(`${unit}-step-value`).value = stepValue;
+                    }
+                } else if (value.includes('-')) {
+                    // Range
+                    const radio = document.querySelector(`input[name="${unit}"][value="range"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        config[unit].type = 'range';
+                        const [start, end] = value.split('-').map(v => parseInt(v));
+                        document.getElementById(`${unit}-range-start`).value = start;
+                        document.getElementById(`${unit}-range-end`).value = end;
+                    }
+                } else {
+                    // Specific values
+                    const radio = document.querySelector(`input[name="${unit}"][value="custom"]`);
+                    radio.checked = true;
+                    config[unit].type = 'custom';
+                    config[unit].values = value.split(',').map(v => parseInt(v));
+                }
+                
+                updateControlVisibility(unit, config[unit].type);
+                updateValueSelection(unit);
+            });
+            
+            updateCronExpression();
+        }
+        
+        // Update control visibility based on selected type
+        function updateControlVisibility(unit, type) {
+            const controls = timeUnits[unit];
+            
+            // Hide all controls first
+            controls.valuesContainer.style.display = 'none';
+            if (controls.rangeInputs) controls.rangeInputs.style.display = 'none';
+            if (controls.stepInput) controls.stepInput.style.display = 'none';
+            
+            // Show relevant controls
+            if (type === 'custom') {
+                controls.valuesContainer.style.display = 'flex';
+            } else if (type === 'range') {
+                controls.rangeInputs.style.display = 'flex';
+            } else if (type === 'step') {
+                if (controls.stepInput) controls.stepInput.style.display = 'flex';
+            }
+        }
+        
+        // Toggle value selection
+        function toggleValue(unit, value) {
+            const index = config[unit].values.indexOf(value);
+            
+            if (index === -1) {
+                config[unit].values.push(value);
+            } else {
+                config[unit].values.splice(index, 1);
+            }
+            
+            config[unit].values.sort((a, b) => a - b);
+            updateValueSelection(unit);
+            updateCronExpression();
+        }
+        
+        // Update visual value selection
+        function updateValueSelection(unit) {
+            const valueOptions = timeUnits[unit].valuesContainer.querySelectorAll('.value-option');
+            
+            valueOptions.forEach(option => {
+                const value = parseInt(option.dataset.value);
+                
+                if (config[unit].values.includes(value)) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+        
+        // Update the cron expression
+        function updateCronExpression() {
+            const parts = [];
+            
+            // Minute
+            parts.push(getCronPart('minute'));
+            
+            // Hour
+            parts.push(getCronPart('hour'));
+            
+            // Day of Month
+            parts.push(getCronPart('dayOfMonth'));
+            
+            // Month
+            parts.push(getCronPart('month'));
+            
+            // Day of Week
+            parts.push(getCronPart('dayOfWeek'));
+            
+            const expression = parts.join(' ');
+            cronExpression.textContent = expression;
+            
+            // Update breakdown
+            partMinute.textContent = parts[0];
+            partHour.textContent = parts[1];
+            partDayOfMonth.textContent = parts[2];
+            partMonth.textContent = parts[3];
+            partDayOfWeek.textContent = parts[4];
+            
+            // Update human readable description
+            updateHumanReadable(parts);
+            
+            // Update next runs
+            updateNextRuns(expression);
+        }
+        
+        // Get cron part for a time unit
+        function getCronPart(unit) {
+            const config = window.config[unit];
+            
+            switch (config.type) {
+                case 'every':
+                    return '*';
+                case 'custom':
+                    return config.values.length > 0 ? config.values.join(',') : '*';
+                case 'range':
+                    const start = document.getElementById(`${unit}-range-start`).value;
+                    const end = document.getElementById(`${unit}-range-end`).value;
+                    return `${start}-${end}`;
+                case 'step':
+                    const step = document.getElementById(`${unit}-step-value`).value;
+                    return `*/${step}`;
+                default:
+                    return '*';
+            }
+        }
+        
+        // Update human readable description
+        function updateHumanReadable(parts) {
+            const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+            
+            let description = '';
+            
+            // Minute
+            if (minute === '*') {
+                description += 'Every minute';
+            } else if (minute.includes('/')) {
+                const step = minute.split('/')[1];
+                description += `Every ${step} minute${step > 1 ? 's' : ''}`;
+            } else if (minute.includes('-')) {
+                const [start, end] = minute.split('-');
+                description += `From minute ${start} to ${end}`;
+            } else {
+                description += `At minute ${minute}`;
+            }
+            
+            // Hour
+            if (hour === '*') {
+                description += ', every hour';
+            } else if (hour.includes('/')) {
+                const step = hour.split('/')[1];
+                description += `, every ${step} hour${step > 1 ? 's' : ''}`;
+            } else if (hour.includes('-')) {
+                const [start, end] = hour.split('-');
+                description += `, from ${start}:00 to ${end}:00`;
+            } else {
+                description += `, at ${hour.padStart(2, '0')}:00`;
+            }
+            
+            // Day of Month
+            if (dayOfMonth === '*') {
+                description += ', every day';
+            } else {
+                description += `, on day${dayOfMonth.includes(',') ? 's' : ''} ${dayOfMonth} of the month`;
+            }
+            
+            // Month
+            if (month === '*') {
+                description += ', every month';
+            } else {
+                description += `, in ${month}`;
+            }
+            
+            // Day of Week
+            if (dayOfWeek === '*') {
+                description += '';
+            } else {
+                description += `, on ${getDayNames(dayOfWeek)}`;
+            }
+            
+            humanReadable.textContent = description;
+        }
+        
+        // Update next runs (simulated)
+        function updateNextRuns(expression) {
+            nextRuns.innerHTML = '';
+            
+            // Simulate next 5 runs
+            const now = new Date();
+            for (let i = 1; i <= 5; i++) {
+                const nextDate = new Date(now);
+                nextDate.setDate(nextDate.getDate() + i);
+                
+                const runItem = document.createElement('div');
+                runItem.className = 'run-item';
+                runItem.textContent = nextDate.toLocaleString();
+                nextRuns.appendChild(runItem);
+            }
+        }
+        
+        // Copy expression to clipboard
+        function copyExpression() {
+            const expression = cronExpression.textContent;
+            
+            navigator.clipboard.writeText(expression).then(() => {
+                // Visual feedback
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Expression';
+                }, 2000);
+            });
+        }
+        
+        // Reset form
+        function resetForm() {
+            if (confirm('Are you sure you want to reset the form?')) {
+                // Reset radio buttons
+                document.querySelectorAll('input[type="radio"][value="every"]').forEach(radio => {
+                    radio.checked = true;
+                });
+                
+                // Reset config
+                for (const unit in config) {
+                    config[unit].type = 'every';
+                    config[unit].values = [];
+                }
+                
+                // Reset controls visibility
+                for (const unit in timeUnits) {
+                    updateControlVisibility(unit, 'every');
+                    updateValueSelection(unit);
+                }
+                
+                // Reset range and step inputs to defaults
+                document.getElementById('minute-range-start').value = 0;
+                document.getElementById('minute-range-end').value = 59;
+                document.getElementById('hour-range-start').value = 0;
+                document.getElementById('hour-range-end').value = 23;
+                document.getElementById('dayOfMonth-range-start').value = 1;
+                document.getElementById('dayOfMonth-range-end').value = 31;
+                document.getElementById('month-range-start').value = 1;
+                document.getElementById('month-range-end').value = 12;
+                document.getElementById('dayOfWeek-range-start').value = 0;
+                document.getElementById('dayOfWeek-range-end').value = 6;
+                document.getElementById('minute-step-value').value = 5;
+                document.getElementById('hour-step-value').value = 2;
+                
+                updateCronExpression();
+            }
+        }
+        
+        // Helper functions
+        function getMonthName(monthNum) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months[monthNum - 1] || monthNum;
+        }
+        
+        function getDayName(dayNum) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            return days[dayNum] || dayNum;
+        }
+        
+        function getDayNames(dayExpression) {
+            if (dayExpression === '*') return 'every day';
+            if (dayExpression === '0,6') return 'weekends';
+            if (dayExpression === '1-5') return 'weekdays';
+            
+            const days = dayExpression.split(',').map(d => getDayName(parseInt(d)));
+            return days.join(', ');
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
