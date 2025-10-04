@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: #333;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .meme-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .meme-canvas-container {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            border: 2px dashed #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        #meme-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .meme-controls {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .meme-controls button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(to right, #4ecdc4, #44a08d);
+            color: white;
+        }
+        
+        .random-btn {
+            background: linear-gradient(to right, #ff6b6b, #ee5a52);
+            color: white;
+        }
+        
+        .meme-controls button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .meme-controls button:active {
+            transform: translateY(0);
+        }
+        
+        .meme-editor {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .editor-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2 i {
+            color: #4ecdc4;
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .template-item {
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .template-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .template-item.active {
+            border-color: #4ecdc4;
+        }
+        
+        .template-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .text-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .text-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input {
+            padding: 12px 15px;
+            border: 2px solid #e1e5ee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        
+        .text-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        select {
+            padding: 12px 15px;
+            border: 2px solid #e1e5ee;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-picker input {
+            flex: 1;
+            padding: 0;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .upload-section {
+            border-top: 2px dashed #e1e5ee;
+            padding-top: 1.5rem;
+        }
+        
+        .upload-btn {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #4ecdc4;
+            border-radius: 10px;
+            background: rgba(78, 205, 196, 0.1);
+            color: #4ecdc4;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .upload-btn:hover {
+            background: rgba(78, 205, 196, 0.2);
+        }
+        
+        #image-upload {
+            display: none;
+        }
+        
+        .meme-gallery {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: white;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .template-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .text-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Meme Generator</h1>
+            <p class="description">Create hilarious memes in seconds! Choose a template, add your text, and share with the world.</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="meme-display">
+                <div class="meme-canvas-container">
+                    <canvas id="meme-canvas" width="500" height="400"></canvas>
+                </div>
+                
+                <div class="meme-controls">
+                    <button class="download-btn" id="download-btn">
+                        <i class="fas fa-download"></i> Download Meme
+                    </button>
+                    <button class="random-btn" id="random-btn">
+                        <i class="fas fa-random"></i> Random Meme
+                    </button>
+                </div>
+            </div>
+            
+            <div class="meme-editor">
+                <div class="editor-section">
+                    <h2><i class="fas fa-images"></i> Choose Template</h2>
+                    <div class="template-grid" id="template-grid">
+                        <!-- Templates will be added by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="editor-section">
+                    <h2><i class="fas fa-font"></i> Add Text</h2>
+                    <div class="text-inputs">
+                        <div class="text-input-group">
+                            <label for="top-text">Top Text</label>
+                            <input type="text" id="top-text" placeholder="Enter top text...">
+                        </div>
+                        <div class="text-input-group">
+                            <label for="bottom-text">Bottom Text</label>
+                            <input type="text" id="bottom-text" placeholder="Enter bottom text...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="editor-section">
+                    <h2><i class="fas fa-palette"></i> Customize Text</h2>
+                    <div class="text-controls">
+                        <div class="control-group">
+                            <label for="font-family">Font Family</label>
+                            <select id="font-family">
+                                <option value="Impact">Impact</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Comic Sans MS">Comic Sans</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Verdana">Verdana</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="font-size">Font Size</label>
+                            <select id="font-size">
+                                <option value="30">Small</option>
+                                <option value="40" selected>Medium</option>
+                                <option value="50">Large</option>
+                                <option value="60">X-Large</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="text-color">Text Color</label>
+                            <div class="color-picker">
+                                <input type="color" id="text-color" value="#ffffff">
+                                <span>White</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="stroke-color">Stroke Color</label>
+                            <div class="color-picker">
+                                <input type="color" id="stroke-color" value="#000000">
+                                <span>Black</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="editor-section upload-section">
+                    <h2><i class="fas fa-upload"></i> Upload Your Image</h2>
+                    <label for="image-upload" class="upload-btn">
+                        <i class="fas fa-cloud-upload-alt"></i> Choose Image
+                    </label>
+                    <input type="file" id="image-upload" accept="image/*">
+                </div>
+            </div>
+            
+            <div class="meme-gallery">
+                <h2><i class="fas fa-th"></i> Popular Meme Templates</h2>
+                <div class="gallery-grid" id="gallery-grid">
+                    <!-- Gallery items will be added by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Meme Generator &copy; 2023 | Create and share your memes with the world!</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const canvas = document.getElementById('meme-canvas');
+        const ctx = canvas.getContext('2d');
+        const topTextInput = document.getElementById('top-text');
+        const bottomTextInput = document.getElementById('bottom-text');
+        const fontFamilySelect = document.getElementById('font-family');
+        const fontSizeSelect = document.getElementById('font-size');
+        const textColorInput = document.getElementById('text-color');
+        const strokeColorInput = document.getElementById('stroke-color');
+        const downloadBtn = document.getElementById('download-btn');
+        const randomBtn = document.getElementById('random-btn');
+        const imageUpload = document.getElementById('image-upload');
+        const templateGrid = document.getElementById('template-grid');
+        const galleryGrid = document.getElementById('gallery-grid');
+        
+        // Meme state
+        let currentImage = null;
+        let currentTemplate = null;
+        
+        // Popular meme templates
+        const memeTemplates = [
+            { id: 1, name: 'Distracted Boyfriend', url: 'https://i.imgflip.com/1ur9b0.jpg' },
+            { id: 2, name: 'Drake', url: 'https://i.imgflip.com/30b1gx.jpg' },
+            { id: 3, name: 'Two Buttons', url: 'https://i.imgflip.com/1g8my4.jpg' },
+            { id: 4, name: 'Change My Mind', url: 'https://i.imgflip.com/24y43o.jpg' },
+            { id: 5, name: 'Left Exit 12', url: 'https://i.imgflip.com/22bdq6.jpg' },
+            { id: 6, name: 'Running Away Balloon', url: 'https://i.imgflip.com/261o3j.jpg' },
+            { id: 7, name: 'Buff Doge vs Cheems', url: 'https://i.imgflip.com/43a45p.jpg' },
+            { id: 8, name: 'Expanding Brain', url: 'https://i.imgflip.com/1jwhww.jpg' },
+            { id: 9, name: 'Boardroom Meeting', url: 'https://i.imgflip.com/m78d.jpg' }
+        ];
+        
+        // Initialize the app
+        function init() {
+            renderTemplates();
+            renderGallery();
+            loadRandomMeme();
+            
+            // Event listeners
+            topTextInput.addEventListener('input', drawMeme);
+            bottomTextInput.addEventListener('input', drawMeme);
+            fontFamilySelect.addEventListener('change', drawMeme);
+            fontSizeSelect.addEventListener('change', drawMeme);
+            textColorInput.addEventListener('input', drawMeme);
+            strokeColorInput.addEventListener('input', drawMeme);
+            downloadBtn.addEventListener('click', downloadMeme);
+            randomBtn.addEventListener('click', loadRandomMeme);
+            imageUpload.addEventListener('change', handleImageUpload);
+        }
+        
+        // Render template selection
+        function renderTemplates() {
+            templateGrid.innerHTML = '';
+            
+            memeTemplates.forEach(template => {
+                const templateItem = document.createElement('div');
+                templateItem.className = 'template-item';
+                templateItem.innerHTML = `
+                    <img src="${template.url}" alt="${template.name}">
+                `;
+                
+                templateItem.addEventListener('click', () => {
+                    document.querySelectorAll('.template-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    templateItem.classList.add('active');
+                    loadTemplate(template);
+                });
+                
+                templateGrid.appendChild(templateItem);
+            });
+        }
+        
+        // Render gallery
+        function renderGallery() {
+            galleryGrid.innerHTML = '';
+            
+            memeTemplates.forEach(template => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.innerHTML = `
+                    <img src="${template.url}" alt="${template.name}">
+                `;
+                
+                galleryItem.addEventListener('click', () => {
+                    loadTemplate(template);
+                    
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                
+                galleryGrid.appendChild(galleryItem);
+            });
+        }
+        
+        // Load a template
+        function loadTemplate(template) {
+            currentTemplate = template;
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src = template.url;
+            img.onload = () => {
+                currentImage = img;
+                drawMeme();
+            };
+        }
+        
+        // Load a random meme template
+        function loadRandomMeme() {
+            const randomIndex = Math.floor(Math.random() * memeTemplates.length);
+            const randomTemplate = memeTemplates[randomIndex];
+            loadTemplate(randomTemplate);
+            
+            // Update active template in UI
+            document.querySelectorAll('.template-item').forEach((item, index) => {
+                if (index === randomIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Set random funny text
+            const topTexts = [
+                "WHEN YOU SEE IT",
+                "ME: I'LL START MONDAY",
+                "MY BRAIN AT 3 AM",
+                "WHEN SOMEONE SAYS",
+                "MY PARENTS: WHY ARE YOU"
+            ];
+            
+            const bottomTexts = [
+                "I SHOULD PROBABLY SLEEP",
+                "PROCRASTINATION LEVEL: EXPERT",
+                "WHAT WAS I THINKING?",
+                "BUT THEN I REMEMBERED",
+                "STARING AT A SCREEN ALL DAY"
+            ];
+            
+            topTextInput.value = topTexts[Math.floor(Math.random() * topTexts.length)];
+            bottomTextInput.value = bottomTexts[Math.floor(Math.random() * bottomTexts.length)];
+        }
+        
+        // Draw the meme on canvas
+        function drawMeme() {
+            if (!currentImage) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw image
+            const scale = Math.min(canvas.width / currentImage.width, canvas.height / currentImage.height);
+            const width = currentImage.width * scale;
+            const height = currentImage.height * scale;
+            const x = (canvas.width - width) / 2;
+            const y = (canvas.height - height) / 2;
+            
+            ctx.drawImage(currentImage, x, y, width, height);
+            
+            // Text styling
+            const fontSize = parseInt(fontSizeSelect.value);
+            const fontFamily = fontFamilySelect.value;
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            const textColor = textColorInput.value;
+            const strokeColor = strokeColorInput.value;
+            
+            // Draw top text
+            if (topTextInput.value) {
+                drawText(topTextInput.value, canvas.width / 2, y + 10, textColor, strokeColor);
+            }
+            
+            // Draw bottom text
+            if (bottomTextInput.value) {
+                drawText(bottomTextInput.value, canvas.width / 2, y + height - fontSize - 10, textColor, strokeColor);
+            }
+        }
+        
+        // Draw text with stroke
+        function drawText(text, x, y, fillColor, strokeColor) {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 3;
+            ctx.strokeText(text, x, y);
+            
+            ctx.fillStyle = fillColor;
+            ctx.fillText(text, x, y);
+        }
+        
+        // Handle image upload
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = img;
+                    currentTemplate = null;
+                    drawMeme();
+                    
+                    // Clear active template
+                    document.querySelectorAll('.template-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Download meme
+        function downloadMeme() {
+            if (!currentImage) {
+                alert('Please select a template or upload an image first!');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'my-meme.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
