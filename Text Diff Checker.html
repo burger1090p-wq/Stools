@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Diff Checker | Compare Text Differences</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #0369a1;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --added: #10b981;
+            --removed: #ef4444;
+            --changed: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        select, button {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .diff-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .diff-output {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .diff-line {
+            padding: 2px 5px;
+            margin-bottom: 2px;
+            border-radius: 3px;
+        }
+
+        .added {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-left: 3px solid var(--added);
+        }
+
+        .removed {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-left: 3px solid var(--removed);
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .changed {
+            background-color: rgba(245, 158, 11, 0.2);
+            border-left: 3px solid var(--changed);
+        }
+
+        .unchanged {
+            border-left: 3px solid transparent;
+        }
+
+        .line-number {
+            display: inline-block;
+            width: 40px;
+            color: var(--gray);
+            font-size: 0.8rem;
+            text-align: right;
+            margin-right: 10px;
+            user-select: none;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        .legend-added {
+            background-color: var(--added);
+        }
+
+        .legend-removed {
+            background-color: var(--removed);
+        }
+
+        .legend-changed {
+            background-color: var(--changed);
+        }
+
+        .view-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            background-color: var(--light);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 1024px) {
+            .input-section, .diff-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .view-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Diff Checker</h1>
+    <p class="subtitle">Compare and find differences between two texts</p>
+    
+    <div class="container">
+        <div class="input-section">
+            <div class="input-group">
+                <h2>Original Text</h2>
+                <textarea id="textA" placeholder="Enter or paste your original text here...">The quick brown fox jumps over the lazy dog.
+This is the first paragraph of the original text.
+It contains several lines of sample content.
+We will compare this text with another version to find differences.</textarea>
+            </div>
+            
+            <div class="input-group">
+                <h2>Modified Text</h2>
+                <textarea id="textB" placeholder="Enter or paste your modified text here...">The quick brown fox leaps over the lazy dog.
+This is the first paragraph of the modified text.
+It contains several lines with some changes.
+We will compare this text with the original to find differences.
+This is a new line added to the modified version.</textarea>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="diffType">Comparison Method:</label>
+                <select id="diffType">
+                    <option value="chars">Character-level</option>
+                    <option value="words" selected>Word-level</option>
+                    <option value="lines">Line-level</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="sensitivity">Sensitivity:</label>
+                <select id="sensitivity">
+                    <option value="high">High</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Actions:</label>
+                <div class="button-group">
+                    <button id="compareBtn">
+                        <i class="fas fa-code-compare"></i> Compare Texts
+                    </button>
+                    <button id="clearBtn" class="secondary">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <h2>Comparison Results</h2>
+            
+            <div class="view-options">
+                <div class="view-btn active" data-view="side-by-side">Side by Side</div>
+                <div class="view-btn" data-view="inline">Inline</div>
+                <div class="view-btn" data-view="unified">Unified</div>
+            </div>
+            
+            <div class="diff-container" id="diffContainer">
+                <div class="diff-output" id="diffA">
+                    <!-- Original text with diff highlighting -->
+                </div>
+                <div class="diff-output" id="diffB">
+                    <!-- Modified text with diff highlighting -->
+                </div>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color legend-added"></div>
+                    <span>Added content</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-removed"></div>
+                    <span>Removed content</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-changed"></div>
+                    <span>Changed content</span>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-plus-circle" style="color: var(--added);"></i>
+                    <span id="addedCount">Added: 0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-minus-circle" style="color: var(--removed);"></i>
+                    <span id="removedCount">Removed: 0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-exchange-alt" style="color: var(--changed);"></i>
+                    <span id="changedCount">Changed: 0</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-percentage" style="color: var(--primary);"></i>
+                    <span id="similarity">Similarity: 0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Text Diff Checker &copy; 2023 | Compare and analyze text differences</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const textA = document.getElementById('textA');
+            const textB = document.getElementById('textB');
+            const diffType = document.getElementById('diffType');
+            const sensitivity = document.getElementById('sensitivity');
+            const compareBtn = document.getElementById('compareBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const diffA = document.getElementById('diffA');
+            const diffB = document.getElementById('diffB');
+            const diffContainer = document.getElementById('diffContainer');
+            const addedCount = document.getElementById('addedCount');
+            const removedCount = document.getElementById('removedCount');
+            const changedCount = document.getElementById('changedCount');
+            const similarity = document.getElementById('similarity');
+            const viewButtons = document.querySelectorAll('.view-btn');
+            
+            // Initial comparison
+            compareTexts();
+            
+            // Event listeners
+            compareBtn.addEventListener('click', compareTexts);
+            clearBtn.addEventListener('click', clearTexts);
+            
+            // View option buttons
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    changeView(this.dataset.view);
+                });
+            });
+            
+            // Compare texts
+            function compareTexts() {
+                const text1 = textA.value;
+                const text2 = textB.value;
+                const type = diffType.value;
+                
+                if (!text1 && !text2) {
+                    diffA.innerHTML = '<div class="diff-line unchanged"><span class="line-number"></span>No text to compare</div>';
+                    diffB.innerHTML = '<div class="diff-line unchanged"><span class="line-number"></span>No text to compare</div>';
+                    updateStats(0, 0, 0, 0);
+                    return;
+                }
+                
+                let diffResult;
+                
+                if (type === 'lines') {
+                    diffResult = diffLines(text1, text2);
+                } else if (type === 'words') {
+                    diffResult = diffWords(text1, text2);
+                } else {
+                    diffResult = diffChars(text1, text2);
+                }
+                
+                displayDiff(diffResult);
+            }
+            
+            // Line-based diff
+            function diffLines(text1, text2) {
+                const lines1 = text1.split('\n');
+                const lines2 = text2.split('\n');
+                const result = { diff1: [], diff2: [] };
+                
+                let i = 0, j = 0;
+                let added = 0, removed = 0, changed = 0;
+                
+                while (i < lines1.length || j < lines2.length) {
+                    if (i < lines1.length && j < lines2.length && lines1[i] === lines2[j]) {
+                        // Lines are the same
+                        result.diff1.push({ text: lines1[i], type: 'unchanged' });
+                        result.diff2.push({ text: lines2[j], type: 'unchanged' });
+                        i++;
+                        j++;
+                    } else if (j < lines2.length && (i >= lines1.length || lines1[i] !== lines2[j])) {
+                        // Line added in text2
+                        if (i < lines1.length && j+1 < lines2.length && lines1[i] === lines2[j+1]) {
+                            result.diff1.push({ text: lines1[i], type: 'removed' });
+                            result.diff2.push({ text: lines2[j], type: 'added' });
+                            removed++;
+                            added++;
+                            i++;
+                            j++;
+                        } else {
+                            result.diff2.push({ text: lines2[j], type: 'added' });
+                            added++;
+                            j++;
+                        }
+                    } else if (i < lines1.length && (j >= lines2.length || lines1[i] !== lines2[j])) {
+                        // Line removed from text1
+                        if (j < lines2.length && i+1 < lines1.length && lines1[i+1] === lines2[j]) {
+                            result.diff1.push({ text: lines1[i], type: 'removed' });
+                            result.diff2.push({ text: lines2[j], type: 'added' });
+                            removed++;
+                            added++;
+                            i++;
+                            j++;
+                        } else {
+                            result.diff1.push({ text: lines1[i], type: 'removed' });
+                            removed++;
+                            i++;
+                        }
+                    }
+                }
+                
+                // Calculate similarity
+                const totalLines = Math.max(lines1.length, lines2.length);
+                const unchangedLines = totalLines - added - removed;
+                const similarityPercent = totalLines > 0 ? Math.round((unchangedLines / totalLines) * 100) : 100;
+                
+                updateStats(added, removed, changed, similarityPercent);
+                
+                return result;
+            }
+            
+            // Word-based diff
+            function diffWords(text1, text2) {
+                const words1 = text1.split(/(\s+)/);
+                const words2 = text2.split(/(\s+)/);
+                const result = { diff1: [], diff2: [] };
+                
+                let i = 0, j = 0;
+                let added = 0, removed = 0, changed = 0;
+                
+                while (i < words1.length || j < words2.length) {
+                    if (i < words1.length && j < words2.length && words1[i] === words2[j]) {
+                        // Words are the same
+                        result.diff1.push({ text: words1[i], type: 'unchanged' });
+                        result.diff2.push({ text: words2[j], type: 'unchanged' });
+                        i++;
+                        j++;
+                    } else if (j < words2.length && (i >= words1.length || words1[i] !== words2[j])) {
+                        // Word added in text2
+                        result.diff2.push({ text: words2[j], type: 'added' });
+                        added++;
+                        j++;
+                    } else if (i < words1.length && (j >= words2.length || words1[i] !== words2[j])) {
+                        // Word removed from text1
+                        result.diff1.push({ text: words1[i], type: 'removed' });
+                        removed++;
+                        i++;
+                    }
+                }
+                
+                // Calculate similarity
+                const totalWords = Math.max(words1.length, words2.length);
+                const unchangedWords = totalWords - added - removed;
+                const similarityPercent = totalWords > 0 ? Math.round((unchangedWords / totalWords) * 100) : 100;
+                
+                updateStats(added, removed, changed, similarityPercent);
+                
+                return result;
+            }
+            
+            // Character-based diff
+            function diffChars(text1, text2) {
+                const result = { diff1: [], diff2: [] };
+                
+                let i = 0, j = 0;
+                let added = 0, removed = 0, changed = 0;
+                
+                while (i < text1.length || j < text2.length) {
+                    if (i < text1.length && j < text2.length && text1[i] === text2[j]) {
+                        // Characters are the same
+                        result.diff1.push({ text: text1[i], type: 'unchanged' });
+                        result.diff2.push({ text: text2[j], type: 'unchanged' });
+                        i++;
+                        j++;
+                    } else if (j < text2.length && (i >= text1.length || text1[i] !== text2[j])) {
+                        // Character added in text2
+                        result.diff2.push({ text: text2[j], type: 'added' });
+                        added++;
+                        j++;
+                    } else if (i < text1.length && (j >= text2.length || text1[i] !== text2[j])) {
+                        // Character removed from text1
+                        result.diff1.push({ text: text1[i], type: 'removed' });
+                        removed++;
+                        i++;
+                    }
+                }
+                
+                // Calculate similarity
+                const totalChars = Math.max(text1.length, text2.length);
+                const unchangedChars = totalChars - added - removed;
+                const similarityPercent = totalChars > 0 ? Math.round((unchangedChars / totalChars) * 100) : 100;
+                
+                updateStats(added, removed, changed, similarityPercent);
+                
+                return result;
+            }
+            
+            // Display diff results
+            function displayDiff(diffResult) {
+                diffA.innerHTML = '';
+                diffB.innerHTML = '';
+                
+                let lineNum = 1;
+                
+                // Display text A with differences
+                diffResult.diff1.forEach(item => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = `diff-line ${item.type}`;
+                    
+                    const lineNumSpan = document.createElement('span');
+                    lineNumSpan.className = 'line-number';
+                    lineNumSpan.textContent = lineNum;
+                    
+                    lineDiv.appendChild(lineNumSpan);
+                    lineDiv.appendChild(document.createTextNode(item.text));
+                    
+                    diffA.appendChild(lineDiv);
+                    
+                    if (item.type !== 'removed') {
+                        lineNum++;
+                    }
+                });
+                
+                lineNum = 1;
+                
+                // Display text B with differences
+                diffResult.diff2.forEach(item => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = `diff-line ${item.type}`;
+                    
+                    const lineNumSpan = document.createElement('span');
+                    lineNumSpan.className = 'line-number';
+                    lineNumSpan.textContent = lineNum;
+                    
+                    lineDiv.appendChild(lineNumSpan);
+                    lineDiv.appendChild(document.createTextNode(item.text));
+                    
+                    diffB.appendChild(lineDiv);
+                    
+                    if (item.type !== 'added') {
+                        lineNum++;
+                    }
+                });
+            }
+            
+            // Update statistics
+            function updateStats(added, removed, changed, similarityPercent) {
+                addedCount.textContent = `Added: ${added}`;
+                removedCount.textContent = `Removed: ${removed}`;
+                changedCount.textContent = `Changed: ${changed}`;
+                similarity.textContent = `Similarity: ${similarityPercent}%`;
+            }
+            
+            // Clear texts
+            function clearTexts() {
+                textA.value = '';
+                textB.value = '';
+                compareTexts();
+            }
+            
+            // Change view mode
+            function changeView(mode) {
+                if (mode === 'inline') {
+                    diffContainer.style.gridTemplateColumns = '1fr';
+                    diffB.style.display = 'none';
+                } else if (mode === 'unified') {
+                    diffContainer.style.gridTemplateColumns = '1fr';
+                    diffB.style.display = 'block';
+                } else {
+                    diffContainer.style.gridTemplateColumns = '1fr 1fr';
+                    diffB.style.display = 'block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
