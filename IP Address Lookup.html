@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Address Lookup Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .lookup-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .input-area {
+            margin-bottom: 30px;
+        }
+        
+        .input-area h3 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-area h3 i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+        
+        .ip-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .ip-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .ip-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #764ba2;
+        }
+        
+        .btn-secondary:hover {
+            background: #6a4190;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .results-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .result-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .result-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-icon {
+            font-size: 24px;
+            color: #667eea;
+            margin-right: 10px;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .result-content {
+            color: #555;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .info-value {
+            color: #667eea;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .map-container {
+            height: 200px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border: 1px dashed #ddd;
+        }
+        
+        .security-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .badge.secure {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .ip-display {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .ip-address {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .ip-type {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .history-section {
+            margin-top: 30px;
+        }
+        
+        .history-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .history-section h3 i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .history-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .history-item:hover {
+            background: #f8fafc;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-ip {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .history-details {
+            font-size: 0.8rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #667eea;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .results-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .ip-input-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IP Address Lookup Tool</h1>
+            <p class="subtitle">Get detailed information about any IP address including geolocation, ISP, and security data</p>
+        </header>
+        
+        <div class="lookup-card">
+            <div class="input-area">
+                <h3><i class="fas fa-search-location"></i> Enter IP Address to Lookup</h3>
+                <div class="ip-input-container">
+                    <input type="text" class="ip-input" id="ipInput" placeholder="Enter IP address (e.g., 8.8.8.8)" value="8.8.8.8">
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" id="lookupBtn">
+                        <i class="fas fa-search"></i> Lookup IP Address
+                    </button>
+                    <button class="btn btn-secondary" id="myIpBtn">
+                        <i class="fas fa-desktop"></i> Lookup My IP
+                    </button>
+                    <button class="btn btn-outline" id="clearBtn">
+                        <i class="fas fa-broom"></i> Clear
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-outline" data-ip="8.8.8.8">
+                        <i class="fas fa-cloud"></i> Google DNS
+                    </button>
+                    <button class="btn btn-outline" data-ip="1.1.1.1">
+                        <i class="fas fa-shield-alt"></i> Cloudflare
+                    </button>
+                    <button class="btn btn-outline" data-ip="208.67.222.222">
+                        <i class="fas fa-network-wired"></i> OpenDNS
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resultsArea" class="hidden">
+                <div class="ip-display">
+                    <div class="ip-address" id="displayIp">8.8.8.8</div>
+                    <div class="ip-type" id="ipType">Public IPv4 Address</div>
+                </div>
+                
+                <div class="results-area">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <i class="fas fa-globe-americas result-icon"></i>
+                            <div class="result-title">Geolocation</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="info-item">
+                                <span class="info-label">Country:</span>
+                                <span class="info-value" id="country">United States</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Region:</span>
+                                <span class="info-value" id="region">California</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">City:</span>
+                                <span class="info-value" id="city">Mountain View</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ZIP Code:</span>
+                                <span class="info-value" id="zipcode">94035</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Timezone:</span>
+                                <span class="info-value" id="timezone">UTC-07:00</span>
+                            </div>
+                            <div class="map-container">
+                                <i class="fas fa-map-marked-alt" style="font-size: 40px; margin-right: 10px;"></i>
+                                <span>Map location for <span id="mapLocation">Mountain View, CA</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-header">
+                            <i class="fas fa-network-wired result-icon"></i>
+                            <div class="result-title">Network Information</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="info-item">
+                                <span class="info-label">ISP:</span>
+                                <span class="info-value" id="isp">Google LLC</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Organization:</span>
+                                <span class="info-value" id="org">Google</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ASN:</span>
+                                <span class="info-value" id="asn">AS15169</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Domain:</span>
+                                <span class="info-value" id="domain">google.com</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Service Type:</span>
+                                <span class="info-value" id="service">Content Delivery Network</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-header">
+                            <i class="fas fa-shield-alt result-icon"></i>
+                            <div class="result-title">Security Assessment</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="info-item">
+                                <span class="info-label">Proxy/VPN:</span>
+                                <span class="info-value" id="proxy">No</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Hosting Provider:</span>
+                                <span class="info-value" id="hosting">Yes</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Threat Level:</span>
+                                <span class="info-value" id="threat">Low</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Abuse Score:</span>
+                                <span class="info-value" id="abuse">0/100</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" id="abuseBar" style="width: 0%"></div>
+                            </div>
+                            
+                            <div class="security-badges" id="securityBadges">
+                                <div class="badge secure">
+                                    <i class="fas fa-check-circle"></i> Trusted
+                                </div>
+                                <div class="badge info">
+                                    <i class="fas fa-server"></i> Datacenter
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h3><i class="fas fa-history"></i> Lookup History</h3>
+                    <div class="history-list" id="historyList">
+                        <!-- History items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-map-marker-alt feature-icon"></i>
+                <h3>Precise Geolocation</h3>
+                <p>Get accurate location data including country, city, and coordinates</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-network-wired feature-icon"></i>
+                <h3>Network Details</h3>
+                <p>Discover ISP, organization, and autonomous system information</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3>Security Analysis</h3>
+                <p>Assess potential threats and security risks associated with IPs</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>IP Address Lookup Tool &copy; 2023 | All rights reserved</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const ipInput = document.getElementById('ipInput');
+            const lookupBtn = document.getElementById('lookupBtn');
+            const myIpBtn = document.getElementById('myIpBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resultsArea = document.getElementById('resultsArea');
+            const historyList = document.getElementById('historyList');
+            
+            // Example buttons
+            const exampleButtons = document.querySelectorAll('[data-ip]');
+            
+            // Result elements
+            const displayIp = document.getElementById('displayIp');
+            const ipType = document.getElementById('ipType');
+            const country = document.getElementById('country');
+            const region = document.getElementById('region');
+            const city = document.getElementById('city');
+            const zipcode = document.getElementById('zipcode');
+            const timezone = document.getElementById('timezone');
+            const mapLocation = document.getElementById('mapLocation');
+            const isp = document.getElementById('isp');
+            const org = document.getElementById('org');
+            const asn = document.getElementById('asn');
+            const domain = document.getElementById('domain');
+            const service = document.getElementById('service');
+            const proxy = document.getElementById('proxy');
+            const hosting = document.getElementById('hosting');
+            const threat = document.getElementById('threat');
+            const abuse = document.getElementById('abuse');
+            const abuseBar = document.getElementById('abuseBar');
+            const securityBadges = document.getElementById('securityBadges');
+            
+            // Lookup history
+            let lookupHistory = [];
+            
+            // Event Listeners
+            lookupBtn.addEventListener('click', function() {
+                const ip = ipInput.value.trim();
+                if (ip) {
+                    lookupIpAddress(ip);
+                } else {
+                    alert('Please enter an IP address to lookup');
+                }
+            });
+            
+            myIpBtn.addEventListener('click', function() {
+                lookupMyIpAddress();
+            });
+            
+            clearBtn.addEventListener('click', function() {
+                ipInput.value = '';
+                resultsArea.classList.add('hidden');
+            });
+            
+            // Example buttons
+            exampleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const ip = this.getAttribute('data-ip');
+                    ipInput.value = ip;
+                    lookupIpAddress(ip);
+                });
+            });
+            
+            // Functions
+            async function lookupIpAddress(ip) {
+                // Validate IP address format
+                if (!isValidIP(ip)) {
+                    alert('Please enter a valid IP address');
+                    return;
+                }
+                
+                // Show loading state
+                const originalText = lookupBtn.innerHTML;
+                lookupBtn.innerHTML = '<span class="loading"></span> Looking up...';
+                lookupBtn.disabled = true;
+                
+                try {
+                    // In a real application, you would call an IP geolocation API
+                    // For this demo, we'll simulate the API response with mock data
+                    const ipData = await simulateIpLookup(ip);
+                    
+                    // Update UI with IP data
+                    updateResults(ipData);
+                    
+                    // Add to history
+                    addToHistory(ip, ipData);
+                    
+                } catch (error) {
+                    console.error('Error looking up IP:', error);
+                    alert('Error looking up IP address: ' + error.message);
+                } finally {
+                    // Restore button state
+                    lookupBtn.innerHTML = originalText;
+                    lookupBtn.disabled = false;
+                }
+            }
+            
+            async function lookupMyIpAddress() {
+                // Show loading state
+                const originalText = myIpBtn.innerHTML;
+                myIpBtn.innerHTML = '<span class="loading"></span> Detecting...';
+                myIpBtn.disabled = true;
+                
+                try {
+                    // In a real application, you would call an API to get the client's IP
+                    // For this demo, we'll simulate getting the IP and then look it up
+                    const myIp = await simulateMyIpDetection();
+                    ipInput.value = myIp;
+                    
+                    // Lookup the IP
+                    const ipData = await simulateIpLookup(myIp);
+                    
+                    // Update UI with IP data
+                    updateResults(ipData);
+                    
+                    // Add to history
+                    addToHistory(myIp, ipData);
+                    
+                } catch (error) {
+                    console.error('Error detecting IP:', error);
+                    alert('Error detecting your IP address: ' + error.message);
+                } finally {
+                    // Restore button state
+                    myIpBtn.innerHTML = originalText;
+                    myIpBtn.disabled = false;
+                }
+            }
+            
+            function simulateMyIpDetection() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        // Generate a random IP for demo purposes
+                        const randomIp = generateRandomIP();
+                        resolve(randomIp);
+                    }, 1000);
+                });
+            }
+            
+            function simulateIpLookup(ip) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        // Generate mock IP data based on the IP
+                        const ipData = generateMockIpData(ip);
+                        resolve(ipData);
+                    }, 1500);
+                });
+            }
+            
+            function generateMockIpData(ip) {
+                // This function generates realistic mock data based on the IP
+                // In a real application, this would come from an API
+                
+                const ipData = {
+                    ip: ip,
+                    type: ip.includes(':') ? 'IPv6' : 'IPv4',
+                    isPublic: !isPrivateIP(ip),
+                    location: {
+                        country: 'United States',
+                        region: 'California',
+                        city: 'Mountain View',
+                        zip: '94035',
+                        timezone: 'America/Los_Angeles',
+                        lat: 37.386,
+                        lon: -122.083
+                    },
+                    network: {
+                        isp: 'Google LLC',
+                        org: 'Google',
+                        as: 'AS15169',
+                        domain: 'google.com'
+                    },
+                    security: {
+                        isProxy: false,
+                        isHosting: true,
+                        threatLevel: 'low',
+                        abuseScore: Math.floor(Math.random() * 20) // 0-19 for demo
+                    }
+                };
+                
+                // Customize data based on known IPs
+                if (ip === '8.8.8.8') {
+                    ipData.network.isp = 'Google LLC';
+                    ipData.network.org = 'Google Public DNS';
+                    ipData.network.as = 'AS15169';
+                    ipData.network.domain = 'google.com';
+                    ipData.location.city = 'Mountain View';
+                } else if (ip === '1.1.1.1') {
+                    ipData.network.isp = 'Cloudflare, Inc.';
+                    ipData.network.org = 'APNIC and Cloudflare DNS';
+                    ipData.network.as = 'AS13335';
+                    ipData.network.domain = 'cloudflare.com';
+                    ipData.location.city = 'San Francisco';
+                } else if (ip === '208.67.222.222') {
+                    ipData.network.isp = 'Cisco OpenDNS';
+                    ipData.network.org = 'OpenDNS, LLC';
+                    ipData.network.as = 'AS36692';
+                    ipData.network.domain = 'opendns.com';
+                    ipData.location.city = 'San Francisco';
+                } else if (isPrivateIP(ip)) {
+                    ipData.type = 'Private IPv4';
+                    ipData.isPublic = false;
+                    ipData.location.country = 'Local Network';
+                    ipData.location.region = 'Private';
+                    ipData.location.city = 'Local';
+                    ipData.location.zip = 'N/A';
+                    ipData.network.isp = 'Local Network';
+                    ipData.network.org = 'Private';
+                    ipData.network.as = 'N/A';
+                    ipData.network.domain = 'local';
+                }
+                
+                return ipData;
+            }
+            
+            function updateResults(ipData) {
+                // Update IP display
+                displayIp.textContent = ipData.ip;
+                ipType.textContent = ipData.isPublic ? `Public ${ipData.type} Address` : `${ipData.type} Address`;
+                
+                // Update location information
+                country.textContent = ipData.location.country;
+                region.textContent = ipData.location.region;
+                city.textContent = ipData.location.city;
+                zipcode.textContent = ipData.location.zip;
+                timezone.textContent = ipData.location.timezone;
+                mapLocation.textContent = `${ipData.location.city}, ${ipData.location.region}`;
+                
+                // Update network information
+                isp.textContent = ipData.network.isp;
+                org.textContent = ipData.network.org;
+                asn.textContent = ipData.network.as;
+                domain.textContent = ipData.network.domain;
+                service.textContent = ipData.network.isp.includes('Google') ? 'DNS Service' : 
+                                    ipData.network.isp.includes('Cloudflare') ? 'DNS & CDN' : 
+                                    ipData.network.isp.includes('OpenDNS') ? 'DNS Service' : 'Content Delivery Network';
+                
+                // Update security information
+                proxy.textContent = ipData.security.isProxy ? 'Yes' : 'No';
+                hosting.textContent = ipData.security.isHosting ? 'Yes' : 'No';
+                threat.textContent = ipData.security.threatLevel.charAt(0).toUpperCase() + ipData.security.threatLevel.slice(1);
+                abuse.textContent = `${ipData.security.abuseScore}/100`;
+                abuseBar.style.width = `${ipData.security.abuseScore}%`;
+                
+                // Update security badges
+                updateSecurityBadges(ipData);
+                
+                // Show results
+                resultsArea.classList.remove('hidden');
+            }
+            
+            function updateSecurityBadges(ipData) {
+                securityBadges.innerHTML = '';
+                
+                if (ipData.security.threatLevel === 'low') {
+                    securityBadges.appendChild(createBadge('secure', '<i class="fas fa-check-circle"></i> Low Risk'));
+                } else if (ipData.security.threatLevel === 'medium') {
+                    securityBadges.appendChild(createBadge('warning', '<i class="fas fa-exclamation-triangle"></i> Medium Risk'));
+                } else {
+                    securityBadges.appendChild(createBadge('danger', '<i class="fas fa-exclamation-circle"></i> High Risk'));
+                }
+                
+                if (ipData.security.isProxy) {
+                    securityBadges.appendChild(createBadge('warning', '<i class="fas fa-user-secret"></i> Proxy/VPN'));
+                }
+                
+                if (ipData.security.isHosting) {
+                    securityBadges.appendChild(createBadge('info', '<i class="fas fa-server"></i> Datacenter'));
+                }
+                
+                if (!ipData.isPublic) {
+                    securityBadges.appendChild(createBadge('info', '<i class="fas fa-home"></i> Private IP'));
+                }
+                
+                if (ipData.security.abuseScore < 10) {
+                    securityBadges.appendChild(createBadge('secure', '<i class="fas fa-shield-alt"></i> Trusted'));
+                }
+            }
+            
+            function createBadge(type, html) {
+                const badge = document.createElement('div');
+                badge.className = `badge ${type}`;
+                badge.innerHTML = html;
+                return badge;
+            }
+            
+            function addToHistory(ip, ipData) {
+                // Add to history array (limit to 10 items)
+                lookupHistory.unshift({
+                    ip: ip,
+                    country: ipData.location.country,
+                    isp: ipData.network.isp,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                if (lookupHistory.length > 10) {
+                    lookupHistory.pop();
+                }
+                
+                updateHistoryUI();
+            }
+            
+            function updateHistoryUI() {
+                historyList.innerHTML = '';
+                
+                if (lookupHistory.length === 0) {
+                    historyList.innerHTML = '<div class="history-item">No history yet</div>';
+                    return;
+                }
+                
+                lookupHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-ip">${item.ip}</div>
+                        <div class="history-details">
+                            <span>${item.country}</span>
+                            <span>${item.isp}</span>
+                            <span>${item.timestamp}</span>
+                        </div>
+                    `;
+                    
+                    historyItem.addEventListener('click', function() {
+                        ipInput.value = item.ip;
+                        lookupIpAddress(item.ip);
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            function isValidIP(ip) {
+                // Simple IP validation
+                const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+                const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+                return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+            }
+            
+            function isPrivateIP(ip) {
+                // Check if IP is in private ranges
+                if (ip.startsWith('10.') || 
+                    ip.startsWith('192.168.') || 
+                    ip.startsWith('172.') && parseInt(ip.split('.')[1]) >= 16 && parseInt(ip.split('.')[1]) <= 31) {
+                    return true;
+                }
+                return false;
+            }
+            
+            function generateRandomIP() {
+                // Generate a random public IP for demo purposes
+                const segments = [];
+                for (let i = 0; i < 4; i++) {
+                    // Avoid private IP ranges
+                    let segment = Math.floor(Math.random() * 254) + 1;
+                    segments.push(segment);
+                }
+                
+                // Ensure it's not a private IP
+                if (segments[0] === 10 || 
+                    (segments[0] === 172 && segments[1] >= 16 && segments[1] <= 31) ||
+                    (segments[0] === 192 && segments[1] === 168)) {
+                    segments[0] = 8;
+                }
+                
+                return segments.join('.');
+            }
+            
+            // Initialize with a demo lookup
+            setTimeout(() => {
+                lookupIpAddress('8.8.8.8');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
