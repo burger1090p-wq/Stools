@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timestamp Converter - Convert Unix Time & Date Formats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #f59e0b;
+            --secondary: #d97706;
+            --accent: #fbbf24;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--dark);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-panel, .output-panel {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            background-color: var(--light);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-section {
+            padding: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .timestamp-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .format-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .format-tab {
+            padding: 10px 16px;
+            border-radius: 6px;
+            background-color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .format-tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .result-card {
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-type {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--secondary);
+        }
+
+        .result-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .timezone-section {
+            padding: 20px;
+            background-color: #1e293b;
+            color: white;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .timezone-section h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timezone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .timezone-card {
+            padding: 15px;
+            background-color: #334155;
+            border-radius: 6px;
+        }
+
+        .timezone-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--accent);
+        }
+
+        .timezone-time {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .date-info {
+            padding: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-card {
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .examples {
+            padding: 20px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .example-card {
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .example-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .example-timestamp {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .example-date {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .error-message {
+            background-color: #fef2f2;
+            color: var(--error);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--error);
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--light);
+            border-top: 1px solid #e2e8f0;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .timestamp-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .timezone-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .example-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <i class="fas fa-clock"></i>
+                Timestamp Converter
+            </h1>
+            <div class="header-actions">
+                <button class="btn-secondary" id="clearBtn">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+                <button class="btn-primary" id="nowBtn">
+                    <i class="fas fa-sync-alt"></i> Now
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="input-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-sliders-h"></i>
+                        Input Settings
+                    </div>
+                </div>
+                <div class="input-section">
+                    <div class="format-tabs">
+                        <div class="format-tab active" data-format="timestamp">Unix Timestamp</div>
+                        <div class="format-tab" data-format="datetime">Date & Time</div>
+                        <div class="format-tab" data-format="iso">ISO 8601</div>
+                    </div>
+
+                    <div class="input-group" id="timestampInput">
+                        <label for="timestampValue">Unix Timestamp (seconds)</label>
+                        <input type="number" id="timestampValue" value="1690000000">
+                    </div>
+
+                    <div class="input-group" id="datetimeInput" style="display: none;">
+                        <label>Date & Time</label>
+                        <div class="timestamp-inputs">
+                            <input type="date" id="dateValue" value="2023-07-22">
+                            <input type="time" id="timeValue" value="12:00">
+                        </div>
+                    </div>
+
+                    <div class="input-group" id="isoInput" style="display: none;">
+                        <label for="isoValue">ISO 8601 Date</label>
+                        <input type="text" id="isoValue" value="2023-07-22T12:00:00Z">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="timezoneSelect">Timezone</label>
+                        <select id="timezoneSelect">
+                            <!-- Timezones will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-calculator"></i>
+                        Conversion Results
+                    </div>
+                </div>
+                <div class="output-grid" id="resultsContainer">
+                    <!-- Results will be populated here -->
+                </div>
+                
+                <div class="timezone-section">
+                    <h3>
+                        <i class="fas fa-globe"></i>
+                        Timezone Conversions
+                    </h3>
+                    <div class="timezone-grid" id="timezoneContainer">
+                        <!-- Timezone conversions will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="date-info">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-info-circle"></i>
+                            Date Information
+                        </div>
+                    </div>
+                    <div class="info-grid" id="dateInfo">
+                        <!-- Date info will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-history"></i>
+                    Common Timestamps
+                </div>
+            </div>
+            <div class="example-grid" id="examplesContainer">
+                <!-- Examples will be populated here -->
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <span id="currentTimestamp">Current: 0</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-calendar"></i>
+                <span id="currentDate">Today: </span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-sync-alt"></i>
+                <span id="lastUpdate">Last update: Just now</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timestampValue = document.getElementById('timestampValue');
+            const dateValue = document.getElementById('dateValue');
+            const timeValue = document.getElementById('timeValue');
+            const isoValue = document.getElementById('isoValue');
+            const timezoneSelect = document.getElementById('timezoneSelect');
+            const formatTabs = document.querySelectorAll('.format-tab');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const timezoneContainer = document.getElementById('timezoneContainer');
+            const dateInfo = document.getElementById('dateInfo');
+            const examplesContainer = document.getElementById('examplesContainer');
+            const clearBtn = document.getElementById('clearBtn');
+            const nowBtn = document.getElementById('nowBtn');
+            const currentTimestamp = document.getElementById('currentTimestamp');
+            const currentDate = document.getElementById('currentDate');
+            const lastUpdate = document.getElementById('lastUpdate');
+
+            let currentFormat = 'timestamp';
+
+            // Common timezone examples
+            const commonTimezones = [
+                'UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London',
+                'Europe/Paris', 'Asia/Tokyo', 'Asia/Shanghai', 'Australia/Sydney',
+                'Asia/Dubai', 'America/Chicago', 'America/Toronto', 'Europe/Berlin'
+            ];
+
+            // Common timestamp examples
+            const commonExamples = [
+                { timestamp: 0, label: 'Unix Epoch' },
+                { timestamp: 946684800, label: 'Y2K' },
+                { timestamp: 1000000000, label: '1 Billion Seconds' },
+                { timestamp: 1234567890, label: '1234567890' },
+                { timestamp: 1609459200, label: 'Jan 1, 2021' },
+                { timestamp: 1690000000, label: 'Current Example' },
+                { timestamp: 2147483647, label: 'Max 32-bit' },
+                { timestamp: 4102444800, label: 'Year 2100' }
+            ];
+
+            // Initialize
+            populateTimezones();
+            updateCurrentTime();
+            populateExamples();
+            convertTimestamp();
+
+            // Update current time every second
+            setInterval(updateCurrentTime, 1000);
+
+            // Event listeners
+            formatTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    formatTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFormat = this.dataset.format;
+                    showInputFormat(currentFormat);
+                    convertTimestamp();
+                });
+            });
+
+            timestampValue.addEventListener('input', convertTimestamp);
+            dateValue.addEventListener('input', convertTimestamp);
+            timeValue.addEventListener('input', convertTimestamp);
+            isoValue.addEventListener('input', convertTimestamp);
+            timezoneSelect.addEventListener('change', convertTimestamp);
+            clearBtn.addEventListener('click', clearAll);
+            nowBtn.addEventListener('click', setToCurrentTime);
+
+            function showInputFormat(format) {
+                document.getElementById('timestampInput').style.display = format === 'timestamp' ? 'block' : 'none';
+                document.getElementById('datetimeInput').style.display = format === 'datetime' ? 'block' : 'none';
+                document.getElementById('isoInput').style.display = format === 'iso' ? 'block' : 'none';
+            }
+
+            function populateTimezones() {
+                commonTimezones.forEach(tz => {
+                    const option = document.createElement('option');
+                    option.value = tz;
+                    option.textContent = tz.replace('_', ' ');
+                    timezoneSelect.appendChild(option);
+                });
+                timezoneSelect.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            }
+
+            function updateCurrentTime() {
+                const now = Math.floor(Date.now() / 1000);
+                currentTimestamp.textContent = `Current: ${now}`;
+                
+                const nowDate = new Date();
+                currentDate.textContent = `Today: ${nowDate.toLocaleDateString()}`;
+            }
+
+            function convertTimestamp() {
+                let timestamp;
+                const timezone = timezoneSelect.value;
+
+                try {
+                    switch (currentFormat) {
+                        case 'timestamp':
+                            timestamp = parseInt(timestampValue.value);
+                            break;
+                        case 'datetime':
+                            const dateTime = new Date(`${dateValue.value}T${timeValue.value}`);
+                            timestamp = Math.floor(dateTime.getTime() / 1000);
+                            break;
+                        case 'iso':
+                            const isoDate = new Date(isoValue.value);
+                            timestamp = Math.floor(isoDate.getTime() / 1000);
+                            break;
+                    }
+
+                    if (isNaN(timestamp)) {
+                        throw new Error('Invalid timestamp');
+                    }
+
+                    displayResults(timestamp, timezone);
+                    updateTimezoneConversions(timestamp);
+                    updateDateInfo(timestamp);
+                    
+                    lastUpdate.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+
+                } catch (error) {
+                    showError(error.message);
+                }
+            }
+
+            function displayResults(timestamp, timezone) {
+                const date = new Date(timestamp * 1000);
+                const localDate = new Date(timestamp * 1000);
+                
+                resultsContainer.innerHTML = '';
+
+                const formats = [
+                    {
+                        type: 'Unix Timestamp',
+                        value: timestamp.toString(),
+                        description: 'Seconds since Jan 1, 1970'
+                    },
+                    {
+                        type: 'Milliseconds',
+                        value: (timestamp * 1000).toString(),
+                        description: 'Milliseconds since Jan 1, 1970'
+                    },
+                    {
+                        type: 'ISO 8601',
+                        value: date.toISOString(),
+                        description: 'International standard format'
+                    },
+                    {
+                        type: 'UTC String',
+                        value: date.toUTCString(),
+                        description: 'Coordinated Universal Time'
+                    },
+                    {
+                        type: 'Local Time',
+                        value: localDate.toLocaleString(),
+                        description: 'Your local timezone'
+                    },
+                    {
+                        type: 'RFC 2822',
+                        value: date.toLocaleString('en-US', {
+                            weekday: 'short',
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            timeZoneName: 'short'
+                        }),
+                        description: 'Email format standard'
+                    }
+                ];
+
+                formats.forEach(format => {
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    
+                    card.innerHTML = `
+                        <div class="result-header">
+                            <span class="result-type">${format.type}</span>
+                        </div>
+                        <div class="result-value">${format.value}</div>
+                        <div class="result-label">${format.description}</div>
+                        <div class="result-actions">
+                            <button class="btn-small btn-secondary copy-btn" data-value="${format.value}">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(card);
+                });
+
+                // Add copy functionality
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const value = this.dataset.value;
+                        navigator.clipboard.writeText(value).then(() => {
+                            const icon = this.querySelector('i');
+                            icon.className = 'fas fa-check';
+                            setTimeout(() => {
+                                icon.className = 'fas fa-copy';
+                            }, 2000);
+                        });
+                    });
+                });
+            }
+
+            function updateTimezoneConversions(timestamp) {
+                timezoneContainer.innerHTML = '';
+                
+                commonTimezones.forEach(tz => {
+                    const date = new Date(timestamp * 1000);
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone: tz,
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        timeZoneName: 'short'
+                    });
+                    
+                    const card = document.createElement('div');
+                    card.className = 'timezone-card';
+                    
+                    card.innerHTML = `
+                        <div class="timezone-name">${tz.replace('_', ' ')}</div>
+                        <div class="timezone-time">${formatter.format(date)}</div>
+                    `;
+                    
+                    timezoneContainer.appendChild(card);
+                });
+            }
+
+            function updateDateInfo(timestamp) {
+                const date = new Date(timestamp * 1000);
+                const now = new Date();
+                const diffTime = Math.abs(date - now);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+                const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                const weekNumber = getWeekNumber(date);
+                const isLeapYear = (date.getFullYear() % 4 === 0 && date.getFullYear() % 100 !== 0) || (date.getFullYear() % 400 === 0);
+                const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                
+                dateInfo.innerHTML = `
+                    <div class="info-card">
+                        <div class="info-value">${dayOfWeek}</div>
+                        <div class="info-label">Day of Week</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${dayOfYear}</div>
+                        <div class="info-label">Day of Year</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${weekNumber}</div>
+                        <div class="info-label">Week Number</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${diffDays}</div>
+                        <div class="info-label">Days from Today</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${isLeapYear ? 'Yes' : 'No'}</div>
+                        <div class="info-label">Leap Year</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value">${daysInMonth}</div>
+                        <div class="info-label">Days in Month</div>
+                    </div>
+                `;
+            }
+
+            function getWeekNumber(date) {
+                const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+                const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+                return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+            }
+
+            function populateExamples() {
+                commonExamples.forEach(example => {
+                    const date = new Date(example.timestamp * 1000);
+                    const card = document.createElement('div');
+                    card.className = 'example-card';
+                    card.addEventListener('click', () => {
+                        timestampValue.value = example.timestamp;
+                        currentFormat = 'timestamp';
+                        formatTabs.forEach(t => t.classList.remove('active'));
+                        document.querySelector('[data-format="timestamp"]').classList.add('active');
+                        showInputFormat('timestamp');
+                        convertTimestamp();
+                    });
+                    
+                    card.innerHTML = `
+                        <div class="example-timestamp">${example.timestamp}</div>
+                        <div class="example-date">${date.toLocaleDateString()}</div>
+                        <div class="example-label">${example.label}</div>
+                    `;
+                    
+                    examplesContainer.appendChild(card);
+                });
+            }
+
+            function setToCurrentTime() {
+                const now = Math.floor(Date.now() / 1000);
+                timestampValue.value = now;
+                currentFormat = 'timestamp';
+                formatTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-format="timestamp"]').classList.add('active');
+                showInputFormat('timestamp');
+                convertTimestamp();
+            }
+
+            function showError(message) {
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        ${message}
+                    </div>
+                `;
+                timezoneContainer.innerHTML = '';
+                dateInfo.innerHTML = '';
+            }
+
+            function clearAll() {
+                if (confirm('Are you sure you want to clear all inputs?')) {
+                    timestampValue.value = '';
+                    dateValue.value = '';
+                    timeValue.value = '';
+                    isoValue.value = '';
+                    resultsContainer.innerHTML = '';
+                    timezoneContainer.innerHTML = '';
+                    dateInfo.innerHTML = '';
+                    lastUpdate.textContent = 'Last update: Never';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
