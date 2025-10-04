@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .generator-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .creation-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .method-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .method-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .method-card.active {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+        
+        .method-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .method-icon {
+            font-size: 28px;
+            color: #667eea;
+            margin-right: 12px;
+        }
+        
+        .method-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .method-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+        
+        .upload-area i {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .text-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .color-input {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .preview-area {
+            text-align: center;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin: 30px 0;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .preview-title {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+        
+        .favicon-previews {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .preview-item {
+            text-align: center;
+        }
+        
+        .preview-size {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .preview-box {
+            width: 64px;
+            height: 64px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 0 auto 8px;
+            overflow: hidden;
+        }
+        
+        .preview-box.small {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .preview-box.large {
+            width: 128px;
+            height: 128px;
+        }
+        
+        .preview-canvas {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .customization-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .option-group {
+            margin-bottom: 20px;
+        }
+        
+        .option-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .option-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .option-range {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #764ba2;
+        }
+        
+        .btn-secondary:hover {
+            background: #6a4190;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .creation-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .customization-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Favicon Generator</h1>
+            <p class="subtitle">Create beautiful favicons for your website with multiple generation methods</p>
+        </header>
+        
+        <div class="generator-card">
+            <div class="creation-methods">
+                <div class="method-card active" data-method="text">
+                    <div class="method-header">
+                        <i class="fas fa-font method-icon"></i>
+                        <div class="method-title">Text Favicon</div>
+                    </div>
+                    <p class="method-description">Create a favicon using text, perfect for initials or abbreviations</p>
+                    <div class="tab-content active">
+                        <input type="text" class="text-input" id="textInput" placeholder="Enter text (1-3 characters)" maxlength="3" value="FG">
+                        <div class="color-picker">
+                            <span>Background Color:</span>
+                            <input type="color" class="color-input" id="bgColor" value="#667eea">
+                        </div>
+                        <div class="color-picker">
+                            <span>Text Color:</span>
+                            <input type="color" class="color-input" id="textColor" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="method-card" data-method="emoji">
+                    <div class="method-header">
+                        <i class="fas fa-smile method-icon"></i>
+                        <div class="method-title">Emoji Favicon</div>
+                    </div>
+                    <p class="method-description">Use an emoji as your favicon for a modern and playful look</p>
+                    <div class="tab-content">
+                        <input type="text" class="text-input" id="emojiInput" placeholder="Enter an emoji" value="🌟">
+                        <div class="color-picker">
+                            <span>Background Color:</span>
+                            <input type="color" class="color-input" id="emojiBgColor" value="#fbbf24">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="method-card" data-method="upload">
+                    <div class="method-header">
+                        <i class="fas fa-upload method-icon"></i>
+                        <div class="method-title">Upload Image</div>
+                    </div>
+                    <p class="method-description">Convert your existing image into a favicon (PNG, JPG, SVG)</p>
+                    <div class="tab-content">
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop your image here or click to browse</p>
+                            <input type="file" id="fileInput" class="hidden" accept="image/*">
+                        </div>
+                        <button class="btn btn-outline" id="browseBtn">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="customization-options">
+                <div class="option-group">
+                    <label class="option-label">Favicon Size</label>
+                    <select class="option-select" id="sizeSelect">
+                        <option value="16">16×16 (Standard)</option>
+                        <option value="32" selected>32×32 (Most Common)</option>
+                        <option value="48">48×48 (Large)</option>
+                        <option value="64">64×64 (Extra Large)</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label class="option-label">Shape</label>
+                    <select class="option-select" id="shapeSelect">
+                        <option value="square" selected>Square</option>
+                        <option value="circle">Circle</option>
+                        <option value="rounded">Rounded Square</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label class="option-label">Format</label>
+                    <select class="option-select" id="formatSelect">
+                        <option value="png" selected>PNG</option>
+                        <option value="ico">ICO (Multiple Sizes)</option>
+                        <option value="svg">SVG (Vector)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="preview-area">
+                <h3 class="preview-title">Favicon Preview</h3>
+                <div class="favicon-previews">
+                    <div class="preview-item">
+                        <div class="preview-size">16×16</div>
+                        <div class="preview-box small">
+                            <div class="preview-canvas" id="preview16" style="background: #667eea; color: white;">FG</div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-size">32×32</div>
+                        <div class="preview-box">
+                            <div class="preview-canvas" id="preview32" style="background: #667eea; color: white;">FG</div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-size">64×64</div>
+                        <div class="preview-box large">
+                            <div class="preview-canvas" id="preview64" style="background: #667eea; color: white;">FG</div>
+                        </div>
+                    </div>
+                </div>
+                <p class="preview-description">Preview of how your favicon will appear in different contexts</p>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="generateBtn">
+                    <i class="fas fa-magic"></i> Generate Favicon
+                </button>
+                <button class="btn btn-secondary" id="downloadBtn" disabled>
+                    <i class="fas fa-download"></i> Download Favicon
+                </button>
+                <button class="btn btn-outline" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-palette feature-icon"></i>
+                <h3>Multiple Styles</h3>
+                <p>Create favicons from text, emojis, or your own images with full customization</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-expand-arrows-alt feature-icon"></i>
+                <h3>Multiple Sizes</h3>
+                <p>Generate favicons in all standard sizes for different devices and browsers</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-download feature-icon"></i>
+                <h3>Multiple Formats</h3>
+                <p>Download in PNG, ICO, or SVG format to suit your website's needs</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Favicon Generator &copy; 2023 | All rights reserved</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const methodCards = document.querySelectorAll('.method-card');
+            const textInput = document.getElementById('textInput');
+            const emojiInput = document.getElementById('emojiInput');
+            const bgColor = document.getElementById('bgColor');
+            const textColor = document.getElementById('textColor');
+            const emojiBgColor = document.getElementById('emojiBgColor');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const sizeSelect = document.getElementById('sizeSelect');
+            const shapeSelect = document.getElementById('shapeSelect');
+            const formatSelect = document.getElementById('formatSelect');
+            const preview16 = document.getElementById('preview16');
+            const preview32 = document.getElementById('preview32');
+            const preview64 = document.getElementById('preview64');
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // Variables
+            let currentMethod = 'text';
+            let uploadedImage = null;
+            let generatedFavicon = null;
+            
+            // Event Listeners
+            methodCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    methodCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMethod = this.getAttribute('data-method');
+                    
+                    // Show/hide tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    this.querySelector('.tab-content').classList.add('active');
+                    
+                    updatePreview();
+                });
+            });
+            
+            textInput.addEventListener('input', updatePreview);
+            emojiInput.addEventListener('input', updatePreview);
+            bgColor.addEventListener('input', updatePreview);
+            textColor.addEventListener('input', updatePreview);
+            emojiBgColor.addEventListener('input', updatePreview);
+            sizeSelect.addEventListener('change', updatePreview);
+            shapeSelect.addEventListener('change', updatePreview);
+            
+            browseBtn.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#667eea';
+                uploadArea.style.backgroundColor = '#f8fafc';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#cbd5e0';
+                uploadArea.style.backgroundColor = '';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#cbd5e0';
+                uploadArea.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length) {
+                    handleImageUpload(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleImageUpload(e.target.files[0]);
+                }
+            });
+            
+            generateBtn.addEventListener('click', generateFavicon);
+            downloadBtn.addEventListener('click', downloadFavicon);
+            resetBtn.addEventListener('click', resetGenerator);
+            
+            // Functions
+            function updatePreview() {
+                let content = '';
+                let bg = '#667eea';
+                let fg = '#ffffff';
+                
+                if (currentMethod === 'text') {
+                    content = textInput.value || 'FG';
+                    bg = bgColor.value;
+                    fg = textColor.value;
+                } else if (currentMethod === 'emoji') {
+                    content = emojiInput.value || '🌟';
+                    bg = emojiBgColor.value;
+                    fg = '#000000'; // Default for emoji
+                } else if (currentMethod === 'upload' && uploadedImage) {
+                    // For uploaded images, we'd show a preview
+                    content = 'IMG';
+                    bg = '#667eea';
+                    fg = '#ffffff';
+                }
+                
+                // Update preview boxes
+                [preview16, preview32, preview64].forEach(preview => {
+                    preview.textContent = content;
+                    preview.style.backgroundColor = bg;
+                    preview.style.color = fg;
+                    
+                    // Apply shape
+                    const shape = shapeSelect.value;
+                    if (shape === 'circle') {
+                        preview.style.borderRadius = '50%';
+                    } else if (shape === 'rounded') {
+                        preview.style.borderRadius = '15%';
+                    } else {
+                        preview.style.borderRadius = '0';
+                    }
+                });
+            }
+            
+            function handleImageUpload(file) {
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = e.target.result;
+                    
+                    // Update preview to show image
+                    [preview16, preview32, preview64].forEach(preview => {
+                        preview.innerHTML = '';
+                        preview.style.backgroundImage = `url(${uploadedImage})`;
+                        preview.style.backgroundSize = 'cover';
+                        preview.style.backgroundPosition = 'center';
+                    });
+                    
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+                
+                // Update upload area text
+                uploadArea.querySelector('p').textContent = `Selected: ${file.name}`;
+            }
+            
+            function generateFavicon() {
+                // In a real application, this would use the Canvas API to generate the favicon
+                // For this demo, we'll simulate the generation process
+                
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                
+                setTimeout(() => {
+                    // Simulate generation
+                    generatedFavicon = {
+                        method: currentMethod,
+                        content: currentMethod === 'text' ? textInput.value : 
+                                currentMethod === 'emoji' ? emojiInput.value : 'uploaded-image',
+                        backgroundColor: currentMethod === 'text' ? bgColor.value : 
+                                       currentMethod === 'emoji' ? emojiBgColor.value : '#667eea',
+                        textColor: textColor.value,
+                        size: sizeSelect.value,
+                        shape: shapeSelect.value,
+                        format: formatSelect.value
+                    };
+                    
+                    // Enable download button
+                    downloadBtn.disabled = false;
+                    
+                    // Show success message
+                    generateBtn.innerHTML = '<i class="fas fa-check"></i> Generated Successfully!';
+                    
+                    // Reset button after delay
+                    setTimeout(() => {
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Favicon';
+                    }, 2000);
+                    
+                }, 1500);
+            }
+            
+            function downloadFavicon() {
+                if (!generatedFavicon) return;
+                
+                // In a real application, this would create and download the actual favicon file
+                // For this demo, we'll simulate the download process
+                
+                const format = formatSelect.value;
+                const filename = `favicon.${format}`;
+                
+                // Create a blob with placeholder content
+                const blob = new Blob([`Favicon generated using ${generatedFavicon.method} method`], {
+                    type: format === 'ico' ? 'image/x-icon' : 
+                          format === 'svg' ? 'image/svg+xml' : 'image/png'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show download confirmation
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+                
+                setTimeout(() => {
+                    downloadBtn.innerHTML = originalText;
+                }, 2000);
+            }
+            
+            function resetGenerator() {
+                // Reset inputs
+                textInput.value = 'FG';
+                emojiInput.value = '🌟';
+                bgColor.value = '#667eea';
+                textColor.value = '#ffffff';
+                emojiBgColor.value = '#fbbf24';
+                sizeSelect.value = '32';
+                shapeSelect.value = 'square';
+                formatSelect.value = 'png';
+                
+                // Reset uploaded image
+                uploadedImage = null;
+                generatedFavicon = null;
+                
+                // Reset upload area
+                uploadArea.querySelector('p').textContent = 'Drag & drop your image here or click to browse';
+                
+                // Reset preview
+                updatePreview();
+                
+                // Disable download button
+                downloadBtn.disabled = true;
+                
+                // Show reset confirmation
+                const originalText = resetBtn.innerHTML;
+                resetBtn.innerHTML = '<i class="fas fa-check"></i> Reset!';
+                
+                setTimeout(() => {
+                    resetBtn.innerHTML = originalText;
+                }, 1500);
+            }
+            
+            // Initialize preview
+            updatePreview();
+        });
+    </script>
+</body>
+</html>
