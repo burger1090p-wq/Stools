@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Encoder/Decoder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1d4ed8;
+            --accent: #60a5fa;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        select, button {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        button.warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        button.warning:hover {
+            background-color: #d97706;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .output-container {
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary);
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .preview {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            word-break: break-all;
+        }
+
+        .examples {
+            margin-top: 30px;
+        }
+
+        .example-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .example-item {
+            padding: 15px;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .example-item:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .example-encoded {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .example-decoded {
+            font-weight: 500;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .info-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .info-section h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .example-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Encoder/Decoder</h1>
+    <p class="subtitle">Encode and decode URLs with multiple options</p>
+    
+    <div class="container">
+        <div class="input-section">
+            <h2>Input URL/Text</h2>
+            <textarea id="inputText" placeholder="Enter URL or text to encode/decode...">https://example.com/search?q=hello world&category=books&price=10-50</textarea>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="operation">Operation:</label>
+                    <select id="operation">
+                        <option value="encode">Encode</option>
+                        <option value="decode">Decode</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="encodeType">Encoding Type:</label>
+                    <select id="encodeType">
+                        <option value="full">Full URL Encoding</option>
+                        <option value="component">URL Component</option>
+                        <option value="form">Form Data (application/x-www-form-urlencoded)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Actions:</label>
+                    <div class="button-group">
+                        <button id="convertBtn">
+                            <i class="fas fa-sync-alt"></i> Convert
+                        </button>
+                        <button id="swapBtn" class="secondary">
+                            <i class="fas fa-exchange-alt"></i> Swap Input/Output
+                        </button>
+                        <button id="clearBtn" class="secondary">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <h2>Output</h2>
+            <div class="output-container">
+                <textarea id="outputText" readonly placeholder="Converted URL will appear here..."></textarea>
+                <button id="copyBtn" class="copy-btn">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-ruler-combined"></i>
+                    <span id="inputLength">Input: 0 characters</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-ruler"></i>
+                    <span id="outputLength">Output: 0 characters</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-percentage"></i>
+                    <span id="changePercent">Change: 0%</span>
+                </div>
+            </div>
+            
+            <div class="preview">
+                <strong>Preview:</strong>
+                <div id="previewArea"></div>
+            </div>
+        </div>
+        
+        <div class="examples">
+            <h2>Common Examples</h2>
+            <div class="example-list" id="exampleList">
+                <!-- Examples will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>About URL Encoding</h3>
+            <p>URL encoding converts characters into a format that can be transmitted over the Internet. It replaces unsafe ASCII characters with a "%" followed by two hexadecimal digits.</p>
+            
+            <h3>When to Use Different Encoding Types:</h3>
+            <ul>
+                <li><strong>Full URL Encoding:</strong> For complete URLs (spaces become %20)</li>
+                <li><strong>URL Component:</strong> For URL components like query parameters (spaces become +)</li>
+                <li><strong>Form Data:</strong> For application/x-www-form-urlencoded data (similar to URL component)</li>
+            </ul>
+            
+            <h3>Common Encoded Characters:</h3>
+            <ul>
+                <li>Space: %20 or +</li>
+                <li>Ampersand (&): %26</li>
+                <li>Equals (=): %3D</li>
+                <li>Question Mark (?): %3F</li>
+                <li>Slash (/): %2F</li>
+                <li>Colon (:): %3A</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer>
+        <p>URL Encoder/Decoder &copy; 2023 | Convert URLs to safe formats for web applications</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const operation = document.getElementById('operation');
+            const encodeType = document.getElementById('encodeType');
+            const convertBtn = document.getElementById('convertBtn');
+            const swapBtn = document.getElementById('swapBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const inputLength = document.getElementById('inputLength');
+            const outputLength = document.getElementById('outputLength');
+            const changePercent = document.getElementById('changePercent');
+            const previewArea = document.getElementById('previewArea');
+            const exampleList = document.getElementById('exampleList');
+            
+            // Common examples for quick testing
+            const examples = [
+                {
+                    encoded: "https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dhello%20world%26category%3Dbooks",
+                    decoded: "https://example.com/search?q=hello world&category=books"
+                },
+                {
+                    encoded: "Hello%20World%21%20How%20are%20you%3F",
+                    decoded: "Hello World! How are you?"
+                },
+                {
+                    encoded: "price%3D10-50%26color%3Dblue%2Bred",
+                    decoded: "price=10-50&color=blue+red"
+                },
+                {
+                    encoded: "special%20chars%3A%20%24%20%26%20%2B%20%2C%20%2F%20%3A%20%3B%20%3D%20%3F%20%40",
+                    decoded: "special chars: $ & + , / : ; = ? @"
+                },
+                {
+                    encoded: "email%3Duser%40example.com%26name%3DJane%20Doe",
+                    decoded: "email=user@example.com&name=Jane Doe"
+                }
+            ];
+            
+            // Populate examples
+            function populateExamples() {
+                exampleList.innerHTML = '';
+                examples.forEach(example => {
+                    const exampleItem = document.createElement('div');
+                    exampleItem.className = 'example-item';
+                    exampleItem.innerHTML = `
+                        <div class="example-decoded">${example.decoded}</div>
+                        <div class="example-encoded">${example.encoded}</div>
+                    `;
+                    exampleItem.addEventListener('click', function() {
+                        inputText.value = operation.value === 'encode' ? example.decoded : example.encoded;
+                        convertText();
+                    });
+                    exampleList.appendChild(exampleItem);
+                });
+            }
+            
+            // Initial conversion
+            convertText();
+            populateExamples();
+            
+            // Event listeners
+            convertBtn.addEventListener('click', convertText);
+            swapBtn.addEventListener('click', swapText);
+            clearBtn.addEventListener('click', clearText);
+            copyBtn.addEventListener('click', copyToClipboard);
+            inputText.addEventListener('input', updateStats);
+            operation.addEventListener('change', convertText);
+            encodeType.addEventListener('change', convertText);
+            
+            // Convert text based on selected operation
+            function convertText() {
+                const text = inputText.value;
+                const op = operation.value;
+                const type = encodeType.value;
+                
+                let result = '';
+                
+                if (op === 'encode') {
+                    result = encodeURL(text, type);
+                } else {
+                    result = decodeURL(text, type);
+                }
+                
+                outputText.value = result;
+                updateStats();
+                updatePreview(result, op);
+            }
+            
+            // Encode URL based on type
+            function encodeURL(text, type) {
+                if (type === 'component') {
+                    return encodeURIComponent(text);
+                } else if (type === 'form') {
+                    // Form encoding is similar to component but spaces become +
+                    return encodeURIComponent(text).replace(/%20/g, '+');
+                } else {
+                    // Full URL encoding
+                    return encodeURI(text);
+                }
+            }
+            
+            // Decode URL based on type
+            function decodeURL(text, type) {
+                if (type === 'form') {
+                    // Replace + with spaces before decoding
+                    text = text.replace(/\+/g, ' ');
+                }
+                try {
+                    if (type === 'component') {
+                        return decodeURIComponent(text);
+                    } else {
+                        return decodeURI(text);
+                    }
+                } catch (e) {
+                    return `Error: ${e.message}. The input may contain invalid encoded sequences.`;
+                }
+            }
+            
+            // Update statistics
+            function updateStats() {
+                const inputLen = inputText.value.length;
+                const outputLen = outputText.value.length;
+                
+                inputLength.textContent = `Input: ${inputLen} characters`;
+                outputLength.textContent = `Output: ${outputLen} characters`;
+                
+                if (inputLen > 0) {
+                    const change = ((outputLen - inputLen) / inputLen * 100).toFixed(1);
+                    changePercent.textContent = `Change: ${change}%`;
+                } else {
+                    changePercent.textContent = 'Change: 0%';
+                }
+            }
+            
+            // Update preview
+            function updatePreview(text, operation) {
+                if (operation === 'encode') {
+                    // For encoded text, create a clickable link if it's a full URL
+                    if (text.startsWith('http')) {
+                        previewArea.innerHTML = `<a href="${text}" target="_blank">${text}</a>`;
+                    } else {
+                        previewArea.textContent = text;
+                    }
+                } else {
+                    // For decoded text, check if it's a URL and make it clickable
+                    if (text.startsWith('http') && !text.includes('Error:')) {
+                        previewArea.innerHTML = `<a href="${text}" target="_blank">${text}</a>`;
+                    } else {
+                        previewArea.textContent = text;
+                    }
+                }
+            }
+            
+            // Swap input and output
+            function swapText() {
+                const temp = inputText.value;
+                inputText.value = outputText.value;
+                outputText.value = temp;
+                
+                // Toggle operation
+                operation.value = operation.value === 'encode' ? 'decode' : 'encode';
+                
+                convertText();
+            }
+            
+            // Clear text
+            function clearText() {
+                inputText.value = '';
+                outputText.value = '';
+                updateStats();
+                previewArea.textContent = '';
+            }
+            
+            // Copy to clipboard
+            function copyToClipboard() {
+                outputText.select();
+                outputText.setSelectionRange(0, 99999); // For mobile devices
+                
+                try {
+                    document.execCommand('copy');
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
