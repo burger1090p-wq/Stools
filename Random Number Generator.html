@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .generator-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .generator-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .input-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .input-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            font-size: 24px;
+            color: #667eea;
+            margin-right: 10px;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .number-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .number-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .checkbox-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .range-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #764ba2;
+        }
+        
+        .btn-secondary:hover {
+            background: #6a4190;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .results-section {
+            background: #f0f9ff;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 25px;
+            border: 1px solid #bae6fd;
+        }
+        
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .results-display {
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .result-label {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .history-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .history-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .history-item {
+            background: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #667eea;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .visualization {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .visualization-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .visualization-placeholder {
+            height: 150px;
+            background: #f8fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border: 1px dashed #cbd5e0;
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .generator-tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+                border-bottom: none;
+                border-left: 3px solid transparent;
+            }
+            
+            .tab.active {
+                border-left-color: #667eea;
+                border-bottom-color: transparent;
+            }
+            
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .result-value {
+                font-size: 2.5rem;
+            }
+            
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Random Number Generator</h1>
+            <p class="subtitle">Generate random numbers for games, simulations, cryptography, and more</p>
+        </header>
+        
+        <div class="generator-card">
+            <div class="generator-tabs">
+                <div class="tab active" data-tab="single">Single Number</div>
+                <div class="tab" data-tab="multiple">Multiple Numbers</div>
+                <div class="tab" data-tab="range">Number Range</div>
+                <div class="tab" data-tab="custom">Custom List</div>
+            </div>
+            
+            <div class="input-section">
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-sliders-h card-icon"></i>
+                        <div class="card-title">Generation Settings</div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Minimum Value</label>
+                        <input type="number" class="number-input" id="minValue" value="1" min="-1000000" max="1000000">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Maximum Value</label>
+                        <input type="number" class="number-input" id="maxValue" value="100" min="-1000000" max="1000000">
+                    </div>
+                    <div class="range-display">
+                        <span id="rangeDisplay">Range: 1 to 100</span>
+                    </div>
+                </div>
+                
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-cog card-icon"></i>
+                        <div class="card-title">Generation Options</div>
+                    </div>
+                    <div class="input-group" id="countGroup">
+                        <label class="input-label">Number of Results</label>
+                        <input type="number" class="number-input" id="resultCount" value="1" min="1" max="1000">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="uniqueOnly">
+                        <label for="uniqueOnly">Unique numbers only</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sortedResults">
+                        <label for="sortedResults">Sort results</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="allowDecimals">
+                        <label for="allowDecimals">Allow decimal numbers</label>
+                    </div>
+                    <div class="input-group" id="decimalPlacesGroup" style="display: none;">
+                        <label class="input-label">Decimal Places</label>
+                        <input type="number" class="number-input" id="decimalPlaces" value="2" min="0" max="10">
+                    </div>
+                </div>
+                
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt card-icon"></i>
+                        <div class="card-title">Advanced Options</div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Seed Value (Optional)</label>
+                        <input type="text" class="number-input" id="seedValue" placeholder="Leave empty for random seed">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Distribution</label>
+                        <select class="number-input" id="distributionType">
+                            <option value="uniform">Uniform (Equal Chance)</option>
+                            <option value="normal">Normal (Bell Curve)</option>
+                            <option value="exponential">Exponential</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="saveHistory">
+                        <label for="saveHistory">Save to history</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="generateBtn">
+                    <i class="fas fa-dice"></i> Generate Numbers
+                </button>
+                <button class="btn btn-secondary" id="quickGenerateBtn">
+                    <i class="fas fa-bolt"></i> Quick Generate
+                </button>
+                <button class="btn btn-outline" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+            
+            <div class="results-section hidden" id="resultsSection">
+                <div class="results-header">
+                    <h3 class="results-title">
+                        <i class="fas fa-chart-bar"></i> Generated Numbers
+                    </h3>
+                    <div class="generation-info" id="generationInfo">
+                        <span style="background: #667eea; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> 1 number
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="results-display">
+                    <div class="result-value" id="resultValue">
+                        42
+                    </div>
+                    <div class="result-label" id="resultLabel">Random Number</div>
+                </div>
+                
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statMin">1</div>
+                        <div class="stat-label">Minimum</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statMax">100</div>
+                        <div class="stat-label">Maximum</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statAvg">50.5</div>
+                        <div class="stat-label">Average</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statSum">42</div>
+                        <div class="stat-label">Sum</div>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h4 class="history-title">
+                        <i class="fas fa-history"></i> Generation History
+                    </h4>
+                    <div class="history-list" id="historyList">
+                        <!-- History items will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="visualization">
+                    <h4 class="visualization-title">
+                        <i class="fas fa-chart-line"></i> Distribution Visualization
+                    </h4>
+                    <div class="visualization-placeholder">
+                        <div style="text-align: center;">
+                            <i class="fas fa-chart-bar" style="font-size: 40px; margin-bottom: 10px; color: #667eea;"></i>
+                            <p>Distribution chart would appear here</p>
+                            <p style="font-size: 0.9rem; margin-top: 5px;">(Visual representation of generated numbers)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-sliders-h feature-icon"></i>
+                <h3>Customizable Ranges</h3>
+                <p>Generate numbers within any range, from negative to positive values</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-cogs feature-icon"></i>
+                <h3>Multiple Modes</h3>
+                <p>Single numbers, multiple numbers, ranges, or custom lists with various options</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-bar feature-icon"></i>
+                <h3>Statistics & History</h3>
+                <p>View statistics about your generated numbers and keep a history of results</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Random Number Generator &copy; 2023 | All rights reserved</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const tabs = document.querySelectorAll('.tab');
+            const minValue = document.getElementById('minValue');
+            const maxValue = document.getElementById('maxValue');
+            const rangeDisplay = document.getElementById('rangeDisplay');
+            const resultCount = document.getElementById('resultCount');
+            const uniqueOnly = document.getElementById('uniqueOnly');
+            const sortedResults = document.getElementById('sortedResults');
+            const allowDecimals = document.getElementById('allowDecimals');
+            const decimalPlacesGroup = document.getElementById('decimalPlacesGroup');
+            const decimalPlaces = document.getElementById('decimalPlaces');
+            const seedValue = document.getElementById('seedValue');
+            const distributionType = document.getElementById('distributionType');
+            const saveHistory = document.getElementById('saveHistory');
+            const generateBtn = document.getElementById('generateBtn');
+            const quickGenerateBtn = document.getElementById('quickGenerateBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const resultsSection = document.getElementById('resultsSection');
+            const generationInfo = document.getElementById('generationInfo');
+            const resultValue = document.getElementById('resultValue');
+            const resultLabel = document.getElementById('resultLabel');
+            const statMin = document.getElementById('statMin');
+            const statMax = document.getElementById('statMax');
+            const statAvg = document.getElementById('statAvg');
+            const statSum = document.getElementById('statSum');
+            const historyList = document.getElementById('historyList');
+            
+            // Variables
+            let currentTab = 'single';
+            let generationHistory = [];
+            
+            // Event Listeners
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTab = this.getAttribute('data-tab');
+                    updateTabSettings();
+                });
+            });
+            
+            minValue.addEventListener('input', updateRangeDisplay);
+            maxValue.addEventListener('input', updateRangeDisplay);
+            
+            allowDecimals.addEventListener('change', function() {
+                decimalPlacesGroup.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            generateBtn.addEventListener('click', generateNumbers);
+            quickGenerateBtn.addEventListener('click', quickGenerate);
+            resetBtn.addEventListener('click', resetGenerator);
+            
+            // Functions
+            function updateRangeDisplay() {
+                const min = parseInt(minValue.value) || 0;
+                const max = parseInt(maxValue.value) || 100;
+                rangeDisplay.textContent = `Range: ${min} to ${max}`;
+            }
+            
+            function updateTabSettings() {
+                switch(currentTab) {
+                    case 'single':
+                        resultCount.value = 1;
+                        resultCount.disabled = true;
+                        uniqueOnly.checked = false;
+                        uniqueOnly.disabled = true;
+                        break;
+                    case 'multiple':
+                        resultCount.value = 5;
+                        resultCount.disabled = false;
+                        uniqueOnly.disabled = false;
+                        break;
+                    case 'range':
+                        resultCount.value = 10;
+                        resultCount.disabled = false;
+                        uniqueOnly.checked = true;
+                        uniqueOnly.disabled = false;
+                        break;
+                    case 'custom':
+                        resultCount.value = 1;
+                        resultCount.disabled = false;
+                        uniqueOnly.disabled = false;
+                        break;
+                }
+                
+                updateGenerationInfo();
+            }
+            
+            function updateGenerationInfo() {
+                let infoText = '';
+                
+                switch(currentTab) {
+                    case 'single':
+                        infoText = '1 number';
+                        break;
+                    case 'multiple':
+                        infoText = `${resultCount.value} numbers`;
+                        break;
+                    case 'range':
+                        infoText = `Range of ${resultCount.value} numbers`;
+                        break;
+                    case 'custom':
+                        infoText = 'Custom generation';
+                        break;
+                }
+                
+                generationInfo.innerHTML = `
+                    <span style="background: #667eea; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> ${infoText}
+                    </span>
+                `;
+            }
+            
+            function generateNumbers() {
+                const min = parseFloat(minValue.value) || 0;
+                const max = parseFloat(maxValue.value) || 100;
+                const count = parseInt(resultCount.value) || 1;
+                const decimals = allowDecimals.checked ? parseInt(decimalPlaces.value) || 2 : 0;
+                
+                if (min >= max) {
+                    alert('Minimum value must be less than maximum value');
+                    return;
+                }
+                
+                if (count < 1) {
+                    alert('Count must be at least 1');
+                    return;
+                }
+                
+                let numbers = [];
+                
+                // Generate numbers based on current tab
+                switch(currentTab) {
+                    case 'single':
+                        numbers = [generateRandomNumber(min, max, decimals)];
+                        break;
+                    case 'multiple':
+                        numbers = generateMultipleNumbers(min, max, count, decimals);
+                        break;
+                    case 'range':
+                        numbers = generateRange(min, max, count);
+                        break;
+                    case 'custom':
+                        numbers = generateCustomList(min, max, count, decimals);
+                        break;
+                }
+                
+                // Apply sorting if requested
+                if (sortedResults.checked) {
+                    numbers.sort((a, b) => a - b);
+                }
+                
+                // Update results display
+                displayResults(numbers);
+                
+                // Update statistics
+                updateStatistics(numbers);
+                
+                // Add to history if requested
+                if (saveHistory.checked) {
+                    addToHistory(numbers);
+                }
+                
+                // Show results
+                resultsSection.classList.remove('hidden');
+            }
+            
+            function generateRandomNumber(min, max, decimals) {
+                const random = Math.random() * (max - min) + min;
+                return decimals > 0 ? parseFloat(random.toFixed(decimals)) : Math.floor(random);
+            }
+            
+            function generateMultipleNumbers(min, max, count, decimals) {
+                const numbers = [];
+                
+                for (let i = 0; i < count; i++) {
+                    let randomNum;
+                    
+                    if (uniqueOnly.checked) {
+                        // Keep generating until we get a unique number
+                        do {
+                            randomNum = generateRandomNumber(min, max, decimals);
+                        } while (numbers.includes(randomNum) && numbers.length < (max - min + 1));
+                        
+                        // If we've exhausted all possible numbers, break
+                        if (numbers.length >= (max - min + 1)) {
+                            break;
+                        }
+                    } else {
+                        randomNum = generateRandomNumber(min, max, decimals);
+                    }
+                    
+                    numbers.push(randomNum);
+                }
+                
+                return numbers;
+            }
+            
+            function generateRange(min, max, count) {
+                // Generate a range of sequential numbers and shuffle them
+                const rangeSize = max - min + 1;
+                const actualCount = Math.min(count, rangeSize);
+                
+                let numbers = [];
+                for (let i = min; i < min + actualCount; i++) {
+                    numbers.push(i);
+                }
+                
+                // Shuffle the array
+                for (let i = numbers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+                }
+                
+                return numbers;
+            }
+            
+            function generateCustomList(min, max, count, decimals) {
+                // For custom list, we'll just generate multiple numbers
+                // In a real app, this might have special logic
+                return generateMultipleNumbers(min, max, count, decimals);
+            }
+            
+            function displayResults(numbers) {
+                if (numbers.length === 1) {
+                    resultValue.textContent = numbers[0];
+                    resultLabel.textContent = 'Random Number';
+                } else {
+                    resultValue.innerHTML = numbers.map(num => 
+                        `<span style="background: #f0f4ff; padding: 5px 10px; border-radius: 8px; margin: 2px;">${num}</span>`
+                    ).join('');
+                    resultLabel.textContent = `${numbers.length} Random Numbers`;
+                }
+            }
+            
+            function updateStatistics(numbers) {
+                if (numbers.length === 0) return;
+                
+                const min = Math.min(...numbers);
+                const max = Math.max(...numbers);
+                const sum = numbers.reduce((a, b) => a + b, 0);
+                const avg = sum / numbers.length;
+                
+                statMin.textContent = min;
+                statMax.textContent = max;
+                statAvg.textContent = avg.toFixed(2);
+                statSum.textContent = sum;
+            }
+            
+            function addToHistory(numbers) {
+                const historyItem = {
+                    id: Date.now(),
+                    numbers: numbers,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                
+                generationHistory.unshift(historyItem);
+                
+                // Keep only last 20 items
+                if (generationHistory.length > 20) {
+                    generationHistory.pop();
+                }
+                
+                updateHistoryDisplay();
+            }
+            
+            function updateHistoryDisplay() {
+                historyList.innerHTML = '';
+                
+                generationHistory.forEach(item => {
+                    const historyElement = document.createElement('div');
+                    historyElement.className = 'history-item';
+                    
+                    if (item.numbers.length === 1) {
+                        historyElement.textContent = item.numbers[0];
+                    } else {
+                        historyElement.textContent = `${item.numbers.length} numbers`;
+                    }
+                    
+                    historyElement.title = `Generated at ${item.timestamp}`;
+                    historyList.appendChild(historyElement);
+                });
+            }
+            
+            function quickGenerate() {
+                // Set some quick defaults and generate
+                minValue.value = 1;
+                maxValue.value = 100;
+                resultCount.value = 1;
+                allowDecimals.checked = false;
+                decimalPlacesGroup.style.display = 'none';
+                
+                generateNumbers();
+            }
+            
+            function resetGenerator() {
+                minValue.value = 1;
+                maxValue.value = 100;
+                resultCount.value = 1;
+                uniqueOnly.checked = false;
+                sortedResults.checked = false;
+                allowDecimals.checked = false;
+                decimalPlacesGroup.style.display = 'none';
+                decimalPlaces.value = 2;
+                seedValue.value = '';
+                distributionType.value = 'uniform';
+                saveHistory.checked = true;
+                
+                updateRangeDisplay();
+                updateTabSettings();
+                
+                resultsSection.classList.add('hidden');
+                
+                // Show confirmation
+                const originalText = resetBtn.innerHTML;
+                resetBtn.innerHTML = '<i class="fas fa-check"></i> Reset!';
+                
+                setTimeout(() => {
+                    resetBtn.innerHTML = originalText;
+                }, 1500);
+            }
+            
+            // Initialize
+            updateRangeDisplay();
+            updateTabSettings();
+        });
+    </script>
+</body>
+</html>
