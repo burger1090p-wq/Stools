@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .output-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4facfe;
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        .recording-controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .recording-visualizer {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .wave {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 2rem;
+        }
+        
+        .bar {
+            width: 10px;
+            height: 20px;
+            background: linear-gradient(to top, #4facfe, #00f2fe);
+            border-radius: 5px;
+            transition: height 0.2s ease;
+        }
+        
+        .recording-status {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            min-height: 24px;
+        }
+        
+        .recording-status.recording {
+            color: #4facfe;
+        }
+        
+        .recording-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .recording-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.5);
+        }
+        
+        .recording-btn:active {
+            transform: translateY(0);
+        }
+        
+        .recording-btn.recording {
+            background: linear-gradient(to right, #ff5e7d, #ff8a00);
+            box-shadow: 0 5px 15px rgba(255, 94, 125, 0.4);
+        }
+        
+        .recording-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .settings-controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        select:focus, input[type="range"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #4facfe;
+        }
+        
+        .range-value {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .text-output-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #text-output {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 10px;
+            padding: 1rem;
+            font-size: 1rem;
+            resize: none;
+            color: #333;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+        }
+        
+        #text-output:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #4facfe, inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .output-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .output-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .output-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .output-btn:active {
+            transform: translateY(0);
+        }
+        
+        .output-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+        
+        .instructions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .instruction-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instruction-item i {
+            font-size: 1.5rem;
+            color: #4facfe;
+        }
+        
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .instructions-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .output-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Speech to Text Converter</h1>
+            <p class="description">Convert your speech to text in real-time with high accuracy. Perfect for dictation, notes, and more!</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="control-section">
+                <div class="recording-controls">
+                    <h2 class="section-title"><i class="fas fa-microphone"></i> Recording Controls</h2>
+                    
+                    <div class="recording-visualizer">
+                        <div class="wave" id="wave">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="recording-status" id="recording-status">
+                        Ready to record
+                    </div>
+                    
+                    <button class="recording-btn" id="record-btn">
+                        <i class="fas fa-microphone"></i> Start Recording
+                    </button>
+                </div>
+                
+                <div class="settings-controls">
+                    <h2 class="section-title"><i class="fas fa-cog"></i> Settings</h2>
+                    
+                    <div class="control-group">
+                        <label for="language-select">Language</label>
+                        <select id="language-select">
+                            <option value="en-US">English (US)</option>
+                            <option value="en-GB">English (UK)</option>
+                            <option value="es-ES">Spanish</option>
+                            <option value="fr-FR">French</option>
+                            <option value="de-DE">German</option>
+                            <option value="it-IT">Italian</option>
+                            <option value="pt-BR">Portuguese</option>
+                            <option value="ja-JP">Japanese</option>
+                            <option value="ko-KR">Korean</option>
+                            <option value="zh-CN">Chinese (Simplified)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="interim-results">Interim Results</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="interim-results" checked>
+                            <label for="interim-results">Show real-time transcription</label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="continuous-mode">Continuous Mode</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="continuous-mode">
+                            <label for="continuous-mode">Keep listening after pause</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <div class="text-output-container">
+                    <h2 class="section-title"><i class="fas fa-file-alt"></i> Transcription</h2>
+                    <textarea id="text-output" placeholder="Your transcribed text will appear here..." readonly></textarea>
+                    
+                    <div class="output-controls">
+                        <button class="output-btn" id="copy-btn">
+                            <i class="fas fa-copy"></i> Copy Text
+                        </button>
+                        <button class="output-btn" id="clear-btn">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                        <button class="output-btn" id="save-btn">
+                            <i class="fas fa-download"></i> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h2 class="section-title"><i class="fas fa-lightbulb"></i> Tips for Best Results</h2>
+                <div class="instructions-list">
+                    <div class="instruction-item">
+                        <i class="fas fa-volume-up"></i>
+                        <div>Speak clearly and at a moderate pace</div>
+                    </div>
+                    <div class="instruction-item">
+                        <i class="fas fa-microphone-alt"></i>
+                        <div>Use a good quality microphone</div>
+                    </div>
+                    <div class="instruction-item">
+                        <i class="fas fa-quiet"></i>
+                        <div>Minimize background noise</div>
+                    </div>
+                    <div class="instruction-item">
+                        <i class="fas fa-language"></i>
+                        <div>Select the correct language for your speech</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Speech to Text Converter &copy; 2023 | Powered by the Web Speech API</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const recordBtn = document.getElementById('record-btn');
+        const recordingStatus = document.getElementById('recording-status');
+        const textOutput = document.getElementById('text-output');
+        const copyBtn = document.getElementById('copy-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const languageSelect = document.getElementById('language-select');
+        const interimResultsCheckbox = document.getElementById('interim-results');
+        const continuousModeCheckbox = document.getElementById('continuous-mode');
+        const waveBars = document.querySelectorAll('.bar');
+        
+        // Speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isRecording = false;
+        let animationInterval = null;
+        
+        // Check browser support
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser doesn't support speech recognition. Please try Chrome, Edge, or Safari.");
+            recordBtn.disabled = true;
+        } else {
+            // Initialize speech recognition
+            recognition = new SpeechRecognition();
+            setupRecognition();
+        }
+        
+        // Initialize the app
+        function init() {
+            setupEventListeners();
+        }
+        
+        // Set up speech recognition
+        function setupRecognition() {
+            recognition.continuous = continuousModeCheckbox.checked;
+            recognition.interimResults = interimResultsCheckbox.checked;
+            recognition.lang = languageSelect.value;
+            
+            // Event handlers
+            recognition.onstart = () => {
+                isRecording = true;
+                recordingStatus.textContent = 'Listening...';
+                recordingStatus.classList.add('recording');
+                recordBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+                recordBtn.classList.add('recording');
+                startWaveAnimation();
+            };
+            
+            recognition.onend = () => {
+                isRecording = false;
+                recordingStatus.textContent = 'Recording stopped';
+                recordingStatus.classList.remove('recording');
+                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+                recordBtn.classList.remove('recording');
+                stopWaveAnimation();
+                
+                // Restart if in continuous mode
+                if (continuousModeCheckbox.checked && isRecording) {
+                    recognition.start();
+                }
+            };
+            
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Update text output
+                if (finalTranscript) {
+                    textOutput.value += finalTranscript;
+                    // Auto-scroll to bottom
+                    textOutput.scrollTop = textOutput.scrollHeight;
+                }
+                
+                if (interimResultsCheckbox.checked && interimTranscript) {
+                    // Show interim results (you could display them differently)
+                    // For simplicity, we're just appending to the main text
+                    // In a more advanced version, you might show them in a separate area
+                }
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                recordingStatus.textContent = `Error: ${event.error}`;
+                isRecording = false;
+                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+                recordBtn.classList.remove('recording');
+                stopWaveAnimation();
+            };
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Recording button
+            recordBtn.addEventListener('click', toggleRecording);
+            
+            // Output controls
+            copyBtn.addEventListener('click', copyText);
+            clearBtn.addEventListener('click', clearText);
+            saveBtn.addEventListener('click', saveText);
+            
+            // Settings changes
+            languageSelect.addEventListener('change', () => {
+                if (recognition) {
+                    recognition.lang = languageSelect.value;
+                }
+            });
+            
+            interimResultsCheckbox.addEventListener('change', () => {
+                if (recognition) {
+                    recognition.interimResults = interimResultsCheckbox.checked;
+                }
+            });
+            
+            continuousModeCheckbox.addEventListener('change', () => {
+                if (recognition) {
+                    recognition.continuous = continuousModeCheckbox.checked;
+                // If we're currently recording, restart with new settings
+                    if (isRecording) {
+                        recognition.stop();
+                        setTimeout(() => {
+                            recognition.start();
+                        }, 100);
+                    }
+                }
+            });
+        }
+        
+        // Toggle recording
+        function toggleRecording() {
+            if (!recognition) return;
+            
+            if (!isRecording) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Error starting recognition:', error);
+                    recordingStatus.textContent = 'Error starting speech recognition';
+                }
+            } else {
+                recognition.stop();
+            }
+        }
+        
+        // Copy text to clipboard
+        function copyText() {
+            if (textOutput.value.trim() === '') {
+                alert('No text to copy!');
+                return;
+            }
+            
+            textOutput.select();
+            textOutput.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    // Visual feedback
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Text';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                // Fallback for modern browsers
+                navigator.clipboard.writeText(textOutput.value).then(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Text';
+                    }, 2000);
+                });
+            }
+        }
+        
+        // Clear text
+        function clearText() {
+            if (textOutput.value.trim() === '' || confirm('Are you sure you want to clear the text?')) {
+                textOutput.value = '';
+            }
+        }
+        
+        // Save text to file
+        function saveText() {
+            if (textOutput.value.trim() === '') {
+                alert('No text to save!');
+                return;
+            }
+            
+            const blob = new Blob([textOutput.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'speech-to-text-transcription.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Wave animation
+        function startWaveAnimation() {
+            stopWaveAnimation(); // Clear any existing interval
+            
+            animationInterval = setInterval(() => {
+                waveBars.forEach(bar => {
+                    const randomHeight = 20 + Math.random() * 80;
+                    bar.style.height = `${randomHeight}px`;
+                });
+            }, 100);
+        }
+        
+        function stopWaveAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+            
+            waveBars.forEach(bar => {
+                bar.style.height = '20px';
+            });
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
