@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stools - Your All-in-One Online Toolkit</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 60px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 50px;
+            border: none;
+            font-size: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-box button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Categories */
+        .categories {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+            color: var(--dark);
+        }
+
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .category-tab {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid #e9ecef;
+            font-weight: 500;
+        }
+
+        .category-tab:hover, .category-tab.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            border-left: 4px solid var(--primary);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-card h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .tool-card p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Features */
+        .features {
+            background-color: white;
+            padding: 80px 0;
+            border-radius: 30px;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .feature-icon {
+            background-color: #e9ecef;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            color: var(--primary);
+        }
+
+        .feature-item h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column ul li a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #495057;
+            color: #adb5bd;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">S<span>tools</span></a>
+                <div class="nav-links">
+                    <a href="#tools">Tools</a>
+                    <a href="#features">Features</a>
+                    <a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                </div>
+                <button class="cta-button">Get Started</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Your All-in-One Online Toolkit</h1>
+            <p>Access 50+ powerful tools for developers, designers, students, and professionals. All free, no registration required.</p>
+            <div class="search-box">
+                <input type="text" placeholder="Search for a tool...">
+                <button>Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Categories -->
+    <section class="categories container" id="tools">
+        <h2 class="section-title">Browse Our Tools</h2>
+        
+        <div class="category-tabs">
+            <div class="category-tab active" data-category="all">All Tools</div>
+            <div class="category-tab" data-category="text">Text & Code</div>
+            <div class="category-tab" data-category="data">Data & Conversion</div>
+            <div class="category-tab" data-category="image">Image & Media</div>
+            <div class="category-tab" data-category="dev">Development</div>
+            <div class="category-tab" data-category="calc">Calculators</div>
+            <div class="category-tab" data-category="fun">Fun & Miscellaneous</div>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Text & Code Tools -->
+            <div class="tool-card" data-category="text">
+                <h3>Case Converter</h3>
+                <p>Change text between upper, lower, sentence, and title case.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Character/Word Counter</h3>
+                <p>Count characters, words, sentences, and paragraphs.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Lorem Ipsum Generator</h3>
+                <p>Generate placeholder text of any length.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Text Diff Checker</h3>
+                <p>Compare two texts to find the differences.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>JSON Formatter & Validator</h3>
+                <p>Beautify and validate JSON strings.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>HTML Entity Encoder/Decoder</h3>
+                <p>Encode or decode HTML entities.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>URL Encoder/Decoder</h3>
+                <p>Encode or decode strings for use in URLs.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Base64 Encoder/Decoder</h3>
+                <p>Encode and decode Base64 strings.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Markdown to HTML Converter</h3>
+                <p>Convert Markdown syntax to HTML.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>SQL Formatter</h3>
+                <p>Format and beautify ugly SQL queries.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Regex Tester</h3>
+                <p>Test and debug regular expressions with live highlighting.</p>
+            </div>
+            <div class="tool-card" data-category="text">
+                <h3>Code Minifier</h3>
+                <p>Minify HTML, CSS, and JavaScript code.</p>
+            </div>
+
+            <!-- Data & Conversion Tools -->
+            <div class="tool-card" data-category="data">
+                <h3>Number Base Converter</h3>
+                <p>Convert numbers between binary, decimal, hexadecimal, and octal.</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>Color Converter</h3>
+                <p>Convert color codes between HEX, RGB, HSL, and CMYK.</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>Unit Converter</h3>
+                <p>Convert between various units (length, weight, temperature, etc.).</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>Timestamp Converter</h3>
+                <p>Convert Unix timestamps to human-readable dates and vice-versa.</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>CSV to JSON/XML Converter</h3>
+                <p>Convert CSV data into JSON or XML format.</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>QR Code Generator</h3>
+                <p>Generate a QR code from a text or URL.</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>Hash Generator</h3>
+                <p>Generate MD5, SHA1, SHA256, etc., hashes from a string.</p>
+            </div>
+            <div class="tool-card" data-category="data">
+                <h3>UUID Generator</h3>
+                <p>Generate random UUIDs (v4).</p>
+            </div>
+
+            <!-- Image & Media Tools -->
+            <div class="tool-card" data-category="image">
+                <h3>Image Compressor</h3>
+                <p>Compress JPG, PNG, and WebP images.</p>
+            </div>
+            <div class="tool-card" data-category="image">
+                <h3>Image Format Converter</h3>
+                <p>Convert images between JPG, PNG, WebP, and GIF.</p>
+            </div>
+            <div class="tool-card" data-category="image">
+                <h3>Image Resizer</h3>
+                <p>Resize an image to specific dimensions or a percentage.</p>
+            </div>
+            <div class="tool-card" data-category="image">
+                <h3>PDF Merger</h3>
+                <p>Combine multiple PDF files into one.</p>
+            </div>
+            <div class="tool-card" data-category="image">
+                <h3>PDF Splitter</h3>
+                <p>Extract specific pages from a PDF.</p>
+            </div>
+            <div class="tool-card" data-category="image">
+                <h3>PDF to Images (JPG/PNG)</h3>
+                <p>Convert PDF pages to image files.</p>
+            </div>
+            <div class="tool-card" data-category="image">
+                <h3>SVG Optimizer</h3>
+                <p>Clean and minify SVG code.</p>
+            </div>
+
+            <!-- Development & Network Tools -->
+            <div class="tool-card" data-category="dev">
+                <h3>User-Agent Parser</h3>
+                <p>Parse a user-agent string to identify browser, OS, and device.</p>
+            </div>
+            <div class="tool-card" data-category="dev">
+                <h3>HTTP Headers Viewer</h3>
+                <p>Display the HTTP headers your browser is sending.</p>
+            </div>
+            <div class="tool-card" data-category="dev">
+                <h3>IP Address Lookup</h3>
+                <p>Show the user's own IP address and provide basic geolocation.</p>
+            </div>
+            <div class="tool-card" data-category="dev">
+                <h3>SSL Certificate Checker</h3>
+                <p>Check the SSL certificate of any domain.</p>
+            </div>
+            <div class="tool-card" data-category="dev">
+                <h3>Screen Resolution</h3>
+                <p>Show the user's current screen resolution.</p>
+            </div>
+            <div class="tool-card" data-category="dev">
+                <h3>Favicon Generator</h3>
+                <p>Generate a favicon.ico from a larger image.</p>
+            </div>
+
+            <!-- Calculators & Utilities -->
+            <div class="tool-card" data-category="calc">
+                <h3>Percentage Calculator</h3>
+                <p>Calculate percentages, increases, and decreases.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>Age Calculator</h3>
+                <p>Calculate age from a birth date.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>Loan/Mortgage Calculator</h3>
+                <p>Calculate monthly payments and total interest.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>GPA Calculator</h3>
+                <p>Calculate a Grade Point Average.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>Tip Calculator</h3>
+                <p>Split a bill and calculate a tip.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>Random Number Generator</h3>
+                <p>Generate a random number within a specified range.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>Random Password Generator</h3>
+                <p>Generate secure, customizable passwords.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>Stopwatch & Timer</h3>
+                <p>A simple stopwatch and countdown timer.</p>
+            </div>
+            <div class="tool-card" data-category="calc">
+                <h3>BMI Calculator</h3>
+                <p>Calculate Body Mass Index.</p>
+            </div>
+
+            <!-- Fun & Miscellaneous Tools -->
+            <div class="tool-card" data-category="fun">
+                <h3>Meme Generator</h3>
+                <p>Add text to popular meme templates.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>Drawing/Painting Pad</h3>
+                <p>A simple canvas for drawing.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>Text to Speech (TTS)</h3>
+                <p>Convert written text into spoken audio.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>Speech to Text</h3>
+                <p>Transcribe speech to text.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>Poll Creator</h3>
+                <p>Create a simple, shareable poll.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>IP Subnet Calculator</h3>
+                <p>Calculate network ranges, netmasks, etc.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>Cron Expression Generator</h3>
+                <p>Generate cron expressions using a simple UI.</p>
+            </div>
+            <div class="tool-card" data-category="fun">
+                <h3>Currency Converter</h3>
+                <p>Convert between different currencies using live exchange rates.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Stools?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Fast & Efficient</h3>
+                    <p>All our tools are optimized for speed, delivering results in seconds.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy Focused</h3>
+                    <p>Your data never leaves your browser. No registration required.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💯</div>
+                    <h3>100% Free</h3>
+                    <p>Access all our tools without any cost or hidden fees.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Use our tools on any device, anywhere, anytime.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🛠️</div>
+                    <h3>Developer Tools</h3>
+                    <p>Specialized tools for developers to streamline their workflow.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Regular Updates</h3>
+                    <p>We continuously add new tools and improve existing ones.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Stools</h3>
+                    <p>Your all-in-one online toolkit with 50+ free tools for developers, designers, students, and professionals.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li><a href="#">Text & Code Tools</a></li>
+                        <li><a href="#">Data & Conversion</a></li>
+                        <li><a href="#">Image & Media</a></li>
+                        <li><a href="#">Development</a></li>
+                        <li><a href="#">Calculators</a></li>
+                        <li><a href="#">Fun & Miscellaneous</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <ul>
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Stools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Category filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const toolCards = document.querySelectorAll('.tool-card');
+            
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    const category = this.getAttribute('data-category');
+                    
+                    // Show/hide tools based on category
+                    toolCards.forEach(card => {
+                        if (category === 'all' || card.getAttribute('data-category') === category) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.querySelector('.search-box input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                toolCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Tool card click functionality (would navigate to the tool page)
+            toolCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const toolName = this.querySelector('h3').textContent;
+                    alert(`Navigating to ${toolName} tool page...`);
+                    // In a real implementation, this would navigate to the actual tool page
+                });
+            });
+        });
+    </script>
+</body>
+</html>
